@@ -384,8 +384,8 @@ export default function SignUp() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* College Email Error Messages */}
-              {collegeEmailError && (
+              {/* College Email Error Messages - Only show after form submission */}
+              {collegeEmailError && showCollegeEmailError && (
                 <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
                   <div className="flex">
                     <div className="flex-shrink-0">
