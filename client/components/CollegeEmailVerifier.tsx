@@ -185,15 +185,7 @@ export default function CollegeEmailVerifier({
 
   return (
     <div className="mt-2 space-y-2">
-      {/* Verification Status */}
-      <div className={`text-xs font-roboto-condensed ${getStatusColor()}`}>
-        <span className="mr-1">{getStatusIcon()}</span>
-        {isVerifying
-          ? "Verifying college email..."
-          : verificationResult?.message}
-      </div>
-
-      {/* College Info */}
+      {/* College Info - Only show positive verification results */}
       {verificationResult?.isCollegeEmail && verificationResult.collegeInfo && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-3">
           <div className="text-sm font-semibold text-green-800">
@@ -211,23 +203,6 @@ export default function CollegeEmailVerifier({
           </div>
         </div>
       )}
-
-      {/* Suggestions */}
-      {verificationResult?.suggestions &&
-        verificationResult.suggestions.length > 0 && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-            <div className="text-xs text-yellow-800">
-              <strong>Suggestions:</strong>
-              <ul className="mt-1 space-y-1">
-                {verificationResult.suggestions.map((suggestion, index) => (
-                  <li key={index} className="text-yellow-700">
-                    • {suggestion}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
 
       {/* Send Verification Email Button */}
       {showVerifyButton && verificationResult?.isCollegeEmail && !emailSent && (
@@ -251,18 +226,6 @@ export default function CollegeEmailVerifier({
           <div className="text-xs text-blue-600 mt-1">
             Please check your inbox and click the verification link.
           </div>
-        </div>
-      )}
-
-      {/* Manual Retry Button */}
-      {!isVerifying && (
-        <div className="flex justify-center">
-          <button
-            onClick={verifyCollegeEmail}
-            className="text-xs text-blue-600 hover:text-blue-800 underline font-roboto-condensed"
-          >
-            Re-verify Email
-          </button>
         </div>
       )}
     </div>
