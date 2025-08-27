@@ -56,6 +56,7 @@ export default function SignUp() {
     setIsLoading(true);
     setError("");
     setErrors([]);
+    setShowCollegeEmailError(false);
 
     // Store form data temporarily for testing profile connection
     try {
