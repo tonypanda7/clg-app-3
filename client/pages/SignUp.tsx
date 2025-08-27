@@ -31,6 +31,7 @@ export default function SignUp() {
     // Clear errors when user starts typing
     if (error) setError("");
     if (errors.length > 0) setErrors([]);
+    if (collegeEmailError) setCollegeEmailError("");
   };
 
   const handleCollegeVerification = (
