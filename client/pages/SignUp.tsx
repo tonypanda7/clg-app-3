@@ -16,8 +16,6 @@ export default function SignUp() {
   const [isSignupComplete, setIsSignupComplete] = useState(false);
   const [isCollegeEmailVerified, setIsCollegeEmailVerified] = useState(false);
   const [collegeInfo, setCollegeInfo] = useState<any>(null);
-  const [collegeEmailError, setCollegeEmailError] = useState<string>("");
-  const [showCollegeEmailError, setShowCollegeEmailError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   // Validate navigation function on component mount
