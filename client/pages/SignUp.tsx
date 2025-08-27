@@ -36,9 +36,11 @@ export default function SignUp() {
   const handleCollegeVerification = (
     isVerified: boolean,
     collegeData?: any,
+    errorMessage?: string,
   ) => {
     setIsCollegeEmailVerified(isVerified);
     setCollegeInfo(collegeData);
+    setCollegeEmailError(errorMessage || "");
 
     if (isVerified && collegeData) {
       console.log("College verified:", collegeData.name);
