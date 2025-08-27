@@ -82,6 +82,10 @@ export default function SignUp() {
         frontendErrors.push(
           "Please use a verified college or university email address",
         );
+        // Show the college email error when form is submitted
+        if (collegeEmailError) {
+          setShowCollegeEmailError(true);
+        }
       }
       if (!formData.password?.trim())
         frontendErrors.push("Password is required");
