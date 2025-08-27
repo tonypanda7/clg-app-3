@@ -101,7 +101,7 @@ export default function CollegeEmailVerifier({
           isCollegeEmail: false,
           message: errorMessage,
         });
-        onVerificationChangeRef.current(false, undefined, errorMessage);
+        onVerificationChangeRef.current(false, undefined, errorMessage, []);
         return;
       }
 
