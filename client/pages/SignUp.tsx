@@ -377,6 +377,25 @@ export default function SignUp() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* College Email Error Messages */}
+              {collegeEmailError && (
+                <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <span className="text-red-400 text-xl">❌</span>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-red-700 font-medium">
+                        University Email Verification Failed
+                      </p>
+                      <p className="text-xs text-red-600 mt-1">
+                        {collegeEmailError}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Error Messages */}
               {error && (
                 <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
