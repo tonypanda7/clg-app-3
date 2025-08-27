@@ -282,32 +282,6 @@ export default function Profile() {
           className="ml-24 sm:ml-28 md:ml-32 lg:ml-36 xl:ml-40 pt-24 max-w-full overflow-x-hidden break-words"
           style={{ wordWrap: "break-word", overflowWrap: "break-word" }}
         >
-          {/* Edit Controls */}
-          <div className="flex justify-end mb-6 gap-3">
-            {!isEditing ? (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleCancel}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                >
-                  Save Changes
-                </button>
-              </>
-            )}
-          </div>
           {/* Profile Header with profile picture and name */}
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-8 mb-12 max-w-full overflow-x-hidden">
             {/* Profile Picture and Name Section */}
