@@ -131,7 +131,7 @@ export default function CollegeEmailVerifier({
         isCollegeEmail: false,
         message: "Network error. Please check your connection and try again.",
       });
-      onVerificationChangeRef.current(false);
+      onVerificationChangeRef.current(false, undefined, "Network error. Please check your connection and try again.");
     } finally {
       setIsVerifying(false);
       setAbortController(null);
