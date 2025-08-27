@@ -117,6 +117,7 @@ export default function CollegeEmailVerifier({
       onVerificationChangeRef.current(
         data.isCollegeEmail || false,
         data.collegeInfo,
+        data.isCollegeEmail ? undefined : data.message,
       );
     } catch (error) {
       // Don't show error if request was aborted (user is still typing)
