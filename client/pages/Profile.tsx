@@ -308,9 +308,9 @@ export default function Profile() {
               </>
             )}
           </div>
-          {/* Profile Header with PROFILE title, profile picture, and name */}
+          {/* Profile Header with profile picture and name */}
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-8 mb-12 max-w-full overflow-x-hidden">
-            {/* PROFILE Title, Profile Picture, and Name Section */}
+            {/* Profile Picture and Name Section */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 flex-1 min-w-0">
 
               {/* Profile Image */}
