@@ -14,6 +14,7 @@ interface CollegeEmailVerifierProps {
     isVerified: boolean,
     collegeInfo?: CollegeInfo,
     errorMessage?: string,
+    suggestions?: string[],
   ) => void;
   showVerifyButton?: boolean;
 }
