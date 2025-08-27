@@ -119,6 +119,7 @@ export default function CollegeEmailVerifier({
         data.isCollegeEmail || false,
         data.collegeInfo,
         data.isCollegeEmail ? undefined : data.message,
+        data.suggestions || [],
       );
     } catch (error) {
       // Don't show error if request was aborted (user is still typing)
