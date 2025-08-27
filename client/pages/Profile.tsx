@@ -478,15 +478,38 @@ export default function Profile() {
                     <button className="px-4 py-2 text-sm bg-yellow-100 text-black rounded-full hover:bg-yellow-200 transition-colors">
                       Message +
                     </button>
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm bg-[rgba(192,206,255,0.87)] text-black rounded-full hover:bg-[rgba(182,196,245,0.87)] transition-colors"
-                    >
-                      Edit
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5.66682 2.55556H3.48904C2.61785 2.55556 2.18193 2.55556 1.84918 2.7251C1.55648 2.87424 1.31868 3.11203 1.16955 3.40473C1 3.73748 1 4.1734 1 5.0446V12.5113C1 13.3825 1 13.8178 1.16955 14.1506C1.31868 14.4433 1.55648 14.6815 1.84918 14.8306C2.1816 15 2.617 15 3.48649 15H10.958C11.8274 15 12.2622 15 12.5946 14.8306C12.8873 14.6815 13.1259 14.443 13.2751 14.1504C13.4444 13.8179 13.4444 13.383 13.4444 12.5135V10.3333M10.3333 3.33333L5.66667 8V10.3333H8L12.6667 5.66667M10.3333 3.33333L12.6667 1L15 3.33333L12.6667 5.66667M10.3333 3.33333L12.6667 5.66667" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
+                    {!isEditing ? (
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm bg-[rgba(192,206,255,0.87)] text-black rounded-full hover:bg-[rgba(182,196,245,0.87)] transition-colors"
+                      >
+                        Edit
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M5.66682 2.55556H3.48904C2.61785 2.55556 2.18193 2.55556 1.84918 2.7251C1.55648 2.87424 1.31868 3.11203 1.16955 3.40473C1 3.73748 1 4.1734 1 5.0446V12.5113C1 13.3825 1 13.8178 1.16955 14.1506C1.31868 14.4433 1.55648 14.6815 1.84918 14.8306C2.1816 15 2.617 15 3.48649 15H10.958C11.8274 15 12.2622 15 12.5946 14.8306C12.8873 14.6815 13.1259 14.443 13.2751 14.1504C13.4444 13.8179 13.4444 13.383 13.4444 12.5135V10.3333M10.3333 3.33333L5.66667 8V10.3333H8L12.6667 5.66667M10.3333 3.33333L12.6667 1L15 3.33333L12.6667 5.66667M10.3333 3.33333L12.6667 5.66667" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={handleCancel}
+                          className="flex items-center gap-2 px-4 py-2 text-sm bg-gray-200 text-black rounded-full hover:bg-gray-300 transition-colors"
+                        >
+                          Cancel
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 4L4 12M4 4L12 12" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                        <button
+                          onClick={handleSave}
+                          className="flex items-center gap-2 px-4 py-2 text-sm bg-green-200 text-black rounded-full hover:bg-green-300 transition-colors"
+                        >
+                          Save
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13.5 4.5L6 12L2.5 8.5" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
