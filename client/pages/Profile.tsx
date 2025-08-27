@@ -311,7 +311,7 @@ export default function Profile() {
                           fullName: e.target.value,
                         }))
                       }
-                      className={`${getDynamicNameSize(tempData.fullName)} font-medium text-black mb-2 bg-transparent border-b-2 border-gray-300 focus:border-blue-500 outline-none w-full max-w-full box-border break-words`}
+                      className={`${getDynamicNameSize(tempData.fullName)} font-medium text-black mb-2 bg-transparent outline-none w-full max-w-full box-border break-words`}
                       style={{
                         fontFamily: "Roboto Flex, sans-serif",
                         wordWrap: "break-word",
@@ -343,7 +343,7 @@ export default function Profile() {
                             username: e.target.value,
                           }))
                         }
-                        className={`${getDynamicUsernameSize(tempData.username)} text-black/70 mb-1 bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none w-full max-w-xs`}
+                        className={`${getDynamicUsernameSize(tempData.username)} text-black/70 mb-1 bg-transparent outline-none w-full max-w-xs`}
                       />
                       {!tempData.username && (
                         <p className="text-xs text-gray-500 mb-3 italic">
@@ -387,7 +387,7 @@ export default function Profile() {
                                 university: e.target.value,
                               }))
                             }
-                            className="bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none max-w-[180px] flex-shrink"
+                            className="bg-transparent outline-none max-w-[180px] flex-shrink"
                             placeholder="University"
                           />
                           <span className="w-1 h-1 bg-gray-400 rounded-full flex-shrink-0"></span>
@@ -400,7 +400,7 @@ export default function Profile() {
                                 degree: e.target.value,
                               }))
                             }
-                            className="bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none max-w-[160px] flex-shrink"
+                            className="bg-transparent outline-none max-w-[160px] flex-shrink"
                             placeholder="Degree"
                           />
                           <span className="w-1 h-1 bg-gray-400 rounded-full flex-shrink-0"></span>
@@ -413,7 +413,7 @@ export default function Profile() {
                                 year: e.target.value,
                               }))
                             }
-                            className="bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none max-w-[80px] flex-shrink"
+                            className="bg-transparent outline-none max-w-[80px] flex-shrink"
                             placeholder="Year"
                           />
                         </>
@@ -446,7 +446,7 @@ export default function Profile() {
                             quote: e.target.value,
                           }))
                         }
-                        className={`${getDynamicQuoteSize(tempData.quote)} italic text-gray-600 mb-1 max-w-full bg-transparent border border-gray-300 focus:border-blue-500 outline-none p-2 rounded w-full resize-none break-words`}
+                        className={`${getDynamicQuoteSize(tempData.quote)} italic text-gray-600 mb-1 max-w-full bg-transparent outline-none p-2 w-full resize-none break-words`}
                         rows={2}
                         placeholder="Your quote..."
                         style={{
@@ -567,7 +567,7 @@ export default function Profile() {
                 onChange={(e) =>
                   setTempData((prev) => ({ ...prev, aboutMe: e.target.value }))
                 }
-                className="text-sm sm:text-base lg:text-lg text-black leading-relaxed w-full max-w-full bg-transparent border border-gray-300 focus:border-blue-500 outline-none p-4 rounded resize-none box-border break-words"
+                className="text-sm sm:text-base lg:text-lg text-black leading-relaxed w-full max-w-full bg-transparent outline-none p-4 resize-none box-border break-words"
                 rows={4}
                 placeholder="Tell us about yourself..."
                 style={{
@@ -806,7 +806,7 @@ export default function Profile() {
                               certifications: newCerts,
                             }));
                           }}
-                          className="bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none flex-1 break-words"
+                          className="bg-transparent outline-none flex-1 break-words"
                           placeholder="Certification"
                           style={{
                             wordWrap: "break-word",
