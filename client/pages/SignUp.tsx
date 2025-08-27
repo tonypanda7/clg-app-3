@@ -32,7 +32,8 @@ export default function SignUp() {
     // Clear errors when user starts typing
     if (error) setError("");
     if (errors.length > 0) setErrors([]);
-    if (collegeEmailError) setCollegeEmailError("");
+    // Hide college email error display but keep the error stored for validation
+    if (showCollegeEmailError) setShowCollegeEmailError(false);
   };
 
   const handleCollegeVerification = (
