@@ -42,6 +42,7 @@ export default function SignUp() {
   ) => {
     setIsCollegeEmailVerified(isVerified);
     setCollegeInfo(collegeData);
+    // Store the error but don't show it until form submission
     setCollegeEmailError(errorMessage || "");
 
     if (isVerified && collegeData) {
