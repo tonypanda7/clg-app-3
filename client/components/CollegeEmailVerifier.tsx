@@ -13,6 +13,7 @@ interface CollegeEmailVerifierProps {
   onVerificationChange: (
     isVerified: boolean,
     collegeInfo?: CollegeInfo,
+    errorMessage?: string,
   ) => void;
   showVerifyButton?: boolean;
 }
