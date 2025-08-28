@@ -252,10 +252,18 @@ export default function Profile() {
   };
 
   const handleRemoveProfilePicture = () => {
-    setTempData((prev) => ({
-      ...prev,
+    const updatedData = {
+      ...profileData,
       profilePicture: defaultProfileData.profilePicture,
-    }));
+    };
+
+    // Update both profileData and tempData immediately
+    setProfileData(updatedData);
+    setTempData(updatedData);
+
+    // Save to localStorage immediately
+    localStorage.setItem("profileData", JSON.stringify(updatedData));
+
     setIsEditingProfilePic(false);
   };
 
