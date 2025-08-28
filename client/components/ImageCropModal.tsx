@@ -194,12 +194,10 @@ export default function ImageCropModal({ isOpen, imageSrc, onSave, onCancel }: I
               alt="Crop preview"
               className="absolute cursor-move select-none"
               style={{
-                transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+                transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${zoom})`,
                 transformOrigin: 'center center',
                 left: '50%',
                 top: '50%',
-                marginLeft: `${-100}%`,
-                marginTop: `${-100}%`,
                 maxWidth: 'none',
                 maxHeight: 'none'
               }}
