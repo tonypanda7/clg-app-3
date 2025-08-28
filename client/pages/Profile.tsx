@@ -760,11 +760,6 @@ export default function Profile() {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-medium text-black mb-6 lg:mb-8">
               💼 Academic & Professional
             </h2>
-            <p className="text-sm text-gray-500 mb-6 italic">
-              Showcase your academic achievements, professional experience, and
-              career highlights. This is where you highlight your expertise and
-              accomplishments.
-            </p>
 
             {/* Skills & Interests */}
             {(data.skills.length > 0 || isEditing) && (
