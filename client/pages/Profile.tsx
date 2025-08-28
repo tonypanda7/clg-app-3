@@ -228,10 +228,14 @@ export default function Profile() {
   };
 
   const handleCropSave = (croppedImage: string) => {
+    console.log("Profile: Saving cropped image, length:", croppedImage.length);
+
     const updatedData = {
       ...profileData,
       profilePicture: croppedImage,
     };
+
+    console.log("Profile: Updated profile data with new picture");
 
     // Update both profileData and tempData immediately
     setProfileData(updatedData);
@@ -239,6 +243,7 @@ export default function Profile() {
 
     // Save to localStorage immediately
     localStorage.setItem("profileData", JSON.stringify(updatedData));
+    console.log("Profile: Saved updated profile data to localStorage");
 
     setShowCropModal(false);
     setSelectedImageSrc("");
