@@ -228,10 +228,18 @@ export default function Profile() {
   };
 
   const handleCropSave = (croppedImage: string) => {
-    setTempData((prev) => ({
-      ...prev,
+    const updatedData = {
+      ...profileData,
       profilePicture: croppedImage,
-    }));
+    };
+
+    // Update both profileData and tempData immediately
+    setProfileData(updatedData);
+    setTempData(updatedData);
+
+    // Save to localStorage immediately
+    localStorage.setItem("profileData", JSON.stringify(updatedData));
+
     setShowCropModal(false);
     setSelectedImageSrc("");
     setIsEditingProfilePic(false);
