@@ -275,19 +275,6 @@ export default function Profile() {
     setIsEditingProfilePic(false);
   };
 
-  // Debug function to test profile picture changes
-  const testProfilePictureChange = () => {
-    const testImage = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwN2JmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+VEVTVDWVNVDQ+PC90ZXh0Pjwvc3ZnPg==";
-    handleCropSave(testImage);
-  };
-
-  // Expose debug function to window for testing
-  React.useEffect(() => {
-    (window as any).testProfilePictureChange = testProfilePictureChange;
-    return () => {
-      delete (window as any).testProfilePictureChange;
-    };
-  }, []);
 
   const data = isEditing ? tempData : profileData;
 
