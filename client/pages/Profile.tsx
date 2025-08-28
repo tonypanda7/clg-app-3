@@ -15,6 +15,7 @@ interface ProfileData {
   languages: string[];
   events: string[];
   hobbies: string[];
+  profilePicture?: string; // Base64 encoded image or URL
 }
 
 const defaultProfileData: ProfileData = {
@@ -53,6 +54,7 @@ const defaultProfileData: ProfileData = {
   languages: ["English", "Hindi", "Bengali"],
   events: ["HackNIT 2025", "Code for Change", "UIthon 2.0"],
   hobbies: ["Painting", "Trekking", "Reading Sci-fi"],
+  profilePicture: "https://api.builder.io/api/v1/image/assets/TEMP/57bfee8f924a01e67e50dd27cf358181cdc47b94?width=392",
 };
 
 export default function Profile() {
@@ -60,6 +62,7 @@ export default function Profile() {
   const [profileData, setProfileData] =
     useState<ProfileData>(defaultProfileData);
   const [tempData, setTempData] = useState<ProfileData>(defaultProfileData);
+  const [isEditingProfilePic, setIsEditingProfilePic] = useState(false);
   const navigate = useNavigate();
 
   // Check authentication and load user data
