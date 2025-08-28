@@ -75,38 +75,39 @@ export default function Profile() {
         !!storedUserData,
       );
 
-      // For development/testing, allow access even without auth
-      // Remove this condition in production
+      // First, always check for temporary signup data to get the most recent fullName
+      const tempSignupData =
+        localStorage.getItem("tempSignupData") ||
+        localStorage.getItem("signupFormData");
+
+      let signupFullName = null;
+      if (tempSignupData) {
+        try {
+          const signupData = JSON.parse(tempSignupData);
+          signupFullName = signupData.fullName;
+          console.log("Profile: Found signup fullName:", signupFullName);
+        } catch (error) {
+          console.error("Error parsing temp signup data:", error);
+        }
+      }
+
+      // If no auth data, use signup data or redirect
       if (!token || !storedUserData) {
         console.log(
-          "Profile: No auth data found, checking for any stored signup data...",
+          "Profile: No auth data found, checking for signup data...",
         );
 
-        // Try to find any signup data that might exist
-        const tempSignupData =
-          localStorage.getItem("tempSignupData") ||
-          localStorage.getItem("signupFormData");
-
-        if (tempSignupData) {
-          try {
-            const signupData = JSON.parse(tempSignupData);
-            console.log("Profile: Found temp signup data:", signupData);
-
-            const initialProfileData = {
-              ...defaultProfileData,
-              fullName: signupData.fullName || defaultProfileData.fullName,
-              // Keep the default username, don't generate from name
-            };
-
-            setProfileData(initialProfileData);
-            setTempData(initialProfileData);
-            return;
-          } catch (error) {
-            console.error("Error parsing temp signup data:", error);
-          }
+        if (signupFullName) {
+          const initialProfileData = {
+            ...defaultProfileData,
+            fullName: signupFullName,
+          };
+          setProfileData(initialProfileData);
+          setTempData(initialProfileData);
+          return;
         }
 
-        // If no auth and no temp data, redirect to signin
+        // If no signup data either, redirect to signin
         navigate("/");
         return;
       }
@@ -115,35 +116,51 @@ export default function Profile() {
         const parsedUserData = JSON.parse(storedUserData);
         console.log("Profile: Parsed user data:", parsedUserData);
 
+        // Determine the fullName to use - prioritize signup data, then stored user data, then default
+        const userFullName = signupFullName || parsedUserData.fullName || defaultProfileData.fullName;
+        console.log("Profile: Using fullName:", userFullName, "(source:",
+          signupFullName ? "signup" : parsedUserData.fullName ? "auth" : "default", ")");
+
         // Load saved profile data from localStorage
         const savedProfile = localStorage.getItem("profileData");
         let initialProfileData = defaultProfileData;
 
         if (savedProfile) {
           try {
-            initialProfileData = JSON.parse(savedProfile);
-            console.log("Profile: Using saved profile data");
+            const parsed = JSON.parse(savedProfile);
+            // Even if we have saved profile data, update the fullName if we have more recent signup data
+            initialProfileData = {
+              ...parsed,
+              fullName: userFullName, // Always use the most recent fullName
+            };
+            console.log("Profile: Updated saved profile with correct fullName");
           } catch (error) {
             console.error("Error loading profile data:", error);
+            // Fallback to initial data with correct name
+            initialProfileData = {
+              ...defaultProfileData,
+              fullName: userFullName,
+            };
           }
         } else {
-          // If no saved profile, initialize with user data from signup
-          console.log("Profile: Initializing with signup data");
-
+          // If no saved profile, initialize with correct fullName
+          console.log("Profile: Initializing new profile with correct fullName");
           initialProfileData = {
             ...defaultProfileData,
-            fullName: parsedUserData.fullName || defaultProfileData.fullName,
-            // Keep the default username, don't generate from name
+            fullName: userFullName,
           };
-
-          console.log("Profile: Generated initial profile:", {
-            fullName: initialProfileData.fullName,
-            username: initialProfileData.username,
-          });
         }
+
+        console.log("Profile: Final profile data:", {
+          fullName: initialProfileData.fullName,
+          username: initialProfileData.username,
+        });
 
         setProfileData(initialProfileData);
         setTempData(initialProfileData);
+
+        // Save the corrected profile data for future loads
+        localStorage.setItem("profileData", JSON.stringify(initialProfileData));
       } catch (error) {
         console.error("Auth check error:", error);
         navigate("/");
