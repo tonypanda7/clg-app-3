@@ -1228,6 +1228,14 @@ export default function Profile() {
           Logout
         </button>
       </div>
+
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        isOpen={showCropModal}
+        imageSrc={selectedImageSrc}
+        onSave={handleCropSave}
+        onCancel={handleCropCancel}
+      />
     </div>
   );
 }
