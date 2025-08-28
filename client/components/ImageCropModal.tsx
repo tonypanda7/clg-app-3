@@ -120,26 +120,28 @@ export default function ImageCropModal({ isOpen, imageSrc, onSave, onCancel }: I
     const scaledWidth = img.naturalWidth * zoom;
     const scaledHeight = img.naturalHeight * zoom;
     
-    // Calculate the crop area in the original image coordinates
-    const cropCenterX = CROP_SIZE / 2;
-    const cropCenterY = CROP_SIZE / 2;
-    
-    const srcX = (cropCenterX - position.x) / zoom;
-    const srcY = (cropCenterY - position.y) / zoom;
-    const srcSize = CROP_SIZE / zoom;
-
     // Create circular clipping path
     ctx.beginPath();
     ctx.arc(CROP_SIZE / 2, CROP_SIZE / 2, CROP_SIZE / 2, 0, Math.PI * 2);
     ctx.clip();
 
+    // Calculate source area based on current view
+    const centerX = img.naturalWidth / 2;
+    const centerY = img.naturalHeight / 2;
+
+    // Calculate what portion of the original image is visible in the crop circle
+    const sourceRadius = (CROP_SIZE / 2) / zoom;
+    const sourceX = centerX - position.x / zoom - sourceRadius;
+    const sourceY = centerY - position.y / zoom - sourceRadius;
+    const sourceSize = sourceRadius * 2;
+
     // Draw the cropped image
     ctx.drawImage(
       img,
-      srcX - CROP_SIZE / (2 * zoom),
-      srcY - CROP_SIZE / (2 * zoom),
-      srcSize,
-      srcSize,
+      sourceX,
+      sourceY,
+      sourceSize,
+      sourceSize,
       0,
       0,
       CROP_SIZE,
