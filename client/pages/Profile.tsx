@@ -213,14 +213,30 @@ export default function Profile() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64String = e.target?.result as string;
-        setTempData((prev) => ({
-          ...prev,
-          profilePicture: base64String,
-        }));
-        setIsEditingProfilePic(false);
+        setSelectedImageSrc(base64String);
+        setShowCropModal(true);
       };
       reader.readAsDataURL(file);
     }
+
+    // Reset the input value so the same file can be selected again
+    event.target.value = '';
+  };
+
+  const handleCropSave = (croppedImage: string) => {
+    setTempData((prev) => ({
+      ...prev,
+      profilePicture: croppedImage,
+    }));
+    setShowCropModal(false);
+    setSelectedImageSrc("");
+    setIsEditingProfilePic(false);
+  };
+
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setSelectedImageSrc("");
+    setIsEditingProfilePic(false);
   };
 
   const handleRemoveProfilePicture = () => {
