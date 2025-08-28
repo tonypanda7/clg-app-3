@@ -108,23 +108,13 @@ export default function ImageCropModal({ isOpen, imageSrc, onSave, onCancel }: I
 
   // Generate cropped image
   const handleSave = useCallback(() => {
-    console.log("ImageCropModal: Starting crop save process");
-
-    if (!imageRef.current || !canvasRef.current) {
-      console.error("ImageCropModal: Missing image or canvas reference");
-      return;
-    }
+    if (!imageRef.current || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.error("ImageCropModal: Could not get canvas context");
-      return;
-    }
+    if (!ctx) return;
 
     const img = imageRef.current;
-    console.log("ImageCropModal: Image dimensions:", img.naturalWidth, "x", img.naturalHeight);
-    console.log("ImageCropModal: Current zoom:", zoom, "position:", position);
 
     // Set canvas size to crop size
     canvas.width = CROP_SIZE;
