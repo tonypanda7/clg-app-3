@@ -62,6 +62,7 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/api-test" element={<ApiTest />} />
           <Route path="/demo" element={<Demo />} />
+          <Route path="/db-debug" element={<DatabaseDebug />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
