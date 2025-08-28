@@ -29,6 +29,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ApiTest from "./pages/ApiTest";
 import Demo from "./pages/Demo";
 import DatabaseDebug from "./pages/DatabaseDebug";
+import Fix401 from "./pages/Fix401";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
