@@ -24,9 +24,11 @@ const generateVerificationToken = () => Math.random().toString(36).substr(2, 32)
 export const handleLogin: RequestHandler = async (req, res) => {
   try {
     const { username, password }: LoginRequest = req.body;
+    console.log('Login attempt:', { username, passwordLength: password?.length });
 
     // Validate input
     if (!username || !password) {
+      console.log('Login failed: Missing username or password');
       return res.status(400).json({
         success: false,
         message: "Username and password are required"
@@ -37,11 +39,26 @@ export const handleLogin: RequestHandler = async (req, res) => {
 
     // Find user by username or email
     const user = await storage.findUser(username);
+    console.log('User lookup result:', {
+      username,
+      userFound: !!user,
+      userEmail: user?.universityEmail,
+      passwordMatch: user ? user.password === password : false
+    });
 
-    if (!user || user.password !== password) {
+    if (!user) {
+      console.log('Login failed: User not found');
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials"
+        message: "Invalid credentials - User not found"
+      } satisfies AuthResponse);
+    }
+
+    if (user.password !== password) {
+      console.log('Login failed: Password mismatch');
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials - Password incorrect"
       } satisfies AuthResponse);
     }
 
