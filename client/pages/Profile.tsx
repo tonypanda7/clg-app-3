@@ -181,12 +181,16 @@ export default function Profile() {
     localStorage.setItem("profileData", JSON.stringify(tempData));
     setIsEditing(false);
     setIsEditingProfilePic(false);
+    setShowCropModal(false);
+    setSelectedImageSrc("");
   };
 
   const handleCancel = () => {
     setTempData(profileData);
     setIsEditing(false);
     setIsEditingProfilePic(false);
+    setShowCropModal(false);
+    setSelectedImageSrc("");
   };
 
   const handleLogout = () => {
