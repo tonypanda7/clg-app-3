@@ -761,6 +761,30 @@ export default function Profile() {
               💼 Academic & Professional
             </h2>
 
+            {/* Show inspiring quote when all sections are empty and not editing */}
+            {!isEditing &&
+             data.skills.length === 0 &&
+             data.projects.length === 0 &&
+             data.certifications.length === 0 &&
+             data.languages.length === 0 &&
+             data.events.length === 0 &&
+             data.hobbies.length === 0 && (
+              <div className="text-center py-12 px-6">
+                <div className="text-6xl mb-6">🚀</div>
+                <h3 className="text-xl sm:text-2xl font-medium text-gray-800 mb-4">
+                  Ready to showcase your journey?
+                </h3>
+                <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto leading-relaxed">
+                  "Every expert was once a beginner. Every professional was once an amateur.
+                  Every icon was once an unknown."
+                </p>
+                <p className="text-sm text-gray-500 italic">
+                  Click Edit to start building your professional story — add your skills, projects,
+                  achievements, and let the world see what makes you unique!
+                </p>
+              </div>
+            )}
+
             {/* Skills & Interests */}
             {(data.skills.length > 0 || isEditing) && (
             <div className="mb-6 lg:mb-8">
