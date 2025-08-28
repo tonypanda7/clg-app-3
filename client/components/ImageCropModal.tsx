@@ -154,11 +154,7 @@ export default function ImageCropModal({ isOpen, imageSrc, onSave, onCancel }: I
 
     // Convert to base64 and save
     const croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
-    console.log("ImageCropModal: Generated cropped image, length:", croppedImageData.length);
-    console.log("ImageCropModal: Image preview:", croppedImageData.substring(0, 100) + "...");
-
     onSave(croppedImageData);
-    console.log("ImageCropModal: Called onSave callback");
   }, [zoom, position, onSave]);
 
   if (!isOpen) return null;
