@@ -716,12 +716,6 @@ export default function Profile() {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-black mb-4 lg:mb-6 flex items-center">
               💬 About Me
             </h2>
-            {!tempData.aboutMe && (
-              <p className="text-sm text-gray-500 mb-4 italic">
-                Tell others about yourself, your background, interests, and what
-                drives you. Share your story and what makes you unique.
-              </p>
-            )}
             {isEditing ? (
               <textarea
                 value={tempData.aboutMe}
@@ -738,16 +732,26 @@ export default function Profile() {
                 }}
               />
             ) : (
-              <p
-                className="text-sm sm:text-base lg:text-lg text-black leading-relaxed break-words"
-                style={{
-                  wordWrap: "break-word",
-                  overflowWrap: "break-word",
-                  wordBreak: "break-word",
-                }}
-              >
-                {data.aboutMe}
-              </p>
+              <>
+                {data.aboutMe && data.aboutMe.trim() ? (
+                  <p
+                    className="text-sm sm:text-base lg:text-lg text-black leading-relaxed break-words"
+                    style={{
+                      wordWrap: "break-word",
+                      overflowWrap: "break-word",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {data.aboutMe}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500 italic leading-relaxed">
+                    This is where you can share your story! Tell others about your background, interests, goals, and what drives you.
+                    Share your passions, experiences, and what makes you unique. This personal touch helps others connect with you and
+                    understand who you are beyond your professional achievements.
+                  </p>
+                )}
+              </>
             )}
           </section>
 
