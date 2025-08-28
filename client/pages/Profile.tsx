@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import ImageCropModal from "../components/ImageCropModal";
 
 interface ProfileData {
   fullName: string;
@@ -63,6 +64,8 @@ export default function Profile() {
     useState<ProfileData>(defaultProfileData);
   const [tempData, setTempData] = useState<ProfileData>(defaultProfileData);
   const [isEditingProfilePic, setIsEditingProfilePic] = useState(false);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string>("");
   const navigate = useNavigate();
 
   // Check authentication and load user data
