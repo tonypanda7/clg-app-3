@@ -349,7 +349,7 @@ export default function Profile() {
               <div className="flex-shrink-0 relative">
                 <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 xl:w-56 xl:h-56 bg-gray-300 rounded-full overflow-hidden relative group">
                   <img
-                    src={data.profilePicture || defaultProfileData.profilePicture}
+                    src={(isEditing ? tempData.profilePicture : data.profilePicture) || defaultProfileData.profilePicture}
                     alt="profile"
                     className="w-full h-full object-cover"
                   />
