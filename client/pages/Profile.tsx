@@ -364,7 +364,7 @@ export default function Profile() {
                         >
                           📷 Change
                         </label>
-                        {data.profilePicture !== defaultProfileData.profilePicture && (
+                        {((isEditing ? tempData.profilePicture : data.profilePicture) !== defaultProfileData.profilePicture) && (
                           <button
                             onClick={handleRemoveProfilePicture}
                             className="bg-red-500 bg-opacity-90 hover:bg-opacity-100 text-white px-3 py-1 rounded-full text-xs font-medium transition-all"
