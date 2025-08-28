@@ -344,14 +344,67 @@ export default function Profile() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 flex-1 min-w-0">
 
               {/* Profile Image */}
-              <div className="flex-shrink-0">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 xl:w-56 xl:h-56 bg-gray-300 rounded-full overflow-hidden">
+              <div className="flex-shrink-0 relative">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 xl:w-56 xl:h-56 bg-gray-300 rounded-full overflow-hidden relative group">
                   <img
-                    src="https://api.builder.io/api/v1/image/assets/TEMP/57bfee8f924a01e67e50dd27cf358181cdc47b94?width=392"
+                    src={data.profilePicture || defaultProfileData.profilePicture}
                     alt="profile"
                     className="w-full h-full object-cover"
                   />
+
+                  {/* Edit overlay - only show when editing or on hover */}
+                  {(isEditing || isEditingProfilePic) && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full">
+                      <div className="flex flex-col items-center gap-2">
+                        <label
+                          htmlFor="profile-picture-upload"
+                          className="cursor-pointer bg-white bg-opacity-90 hover:bg-opacity-100 text-black px-3 py-1 rounded-full text-xs font-medium transition-all"
+                        >
+                          📷 Change
+                        </label>
+                        {data.profilePicture !== defaultProfileData.profilePicture && (
+                          <button
+                            onClick={handleRemoveProfilePicture}
+                            className="bg-red-500 bg-opacity-90 hover:bg-opacity-100 text-white px-3 py-1 rounded-full text-xs font-medium transition-all"
+                          >
+                            🗑️ Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Show edit button when not in editing mode but hovering */}
+                  {!isEditing && !isEditingProfilePic && (
+                    <div
+                      className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer"
+                      onClick={() => setIsEditingProfilePic(true)}
+                    >
+                      <span className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 text-black px-3 py-1 rounded-full text-xs font-medium transition-all">
+                        📷 Edit
+                      </span>
+                    </div>
+                  )}
                 </div>
+
+                {/* Hidden file input */}
+                <input
+                  id="profile-picture-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePictureChange}
+                  className="hidden"
+                />
+
+                {/* Cancel edit button when editing profile pic only */}
+                {isEditingProfilePic && !isEditing && (
+                  <button
+                    onClick={() => setIsEditingProfilePic(false)}
+                    className="absolute -bottom-2 -right-2 bg-gray-200 hover:bg-gray-300 text-black rounded-full w-8 h-8 flex items-center justify-center text-sm transition-colors"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
               {/* Profile Info */}
