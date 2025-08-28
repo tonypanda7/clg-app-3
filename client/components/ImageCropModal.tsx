@@ -40,17 +40,21 @@ export default function ImageCropModal({ isOpen, imageSrc, onSave, onCancel }: I
   // Handle image load
   const handleImageLoad = useCallback(() => {
     if (!imageRef.current || !containerRef.current) return;
-    
+
     const img = imageRef.current;
-    const container = containerRef.current;
-    
-    // Calculate initial zoom to fit image in crop area
+
+    // Calculate initial zoom to ensure image covers the crop circle
     const minZoom = Math.max(
       CROP_SIZE / img.naturalWidth,
       CROP_SIZE / img.naturalHeight
     );
-    
-    setZoom(Math.max(minZoom, 1));
+
+    // Start with a zoom that ensures the image covers the crop area
+    const initialZoom = Math.max(minZoom * 1.1, 1);
+    setZoom(initialZoom);
+
+    // Center the image
+    setPosition({ x: 0, y: 0 });
     setImageLoaded(true);
   }, []);
 
