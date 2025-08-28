@@ -767,6 +767,7 @@ export default function Profile() {
             </p>
 
             {/* Skills & Interests */}
+            {(data.skills.length > 0 || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 Skills & Interests
@@ -841,8 +842,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Projects */}
+            {(data.projects.length > 0 || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 📁 Projects
@@ -942,8 +945,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Certifications */}
+            {(data.certifications.length > 0 || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 📜 Certifications
@@ -1022,8 +1027,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Languages Known */}
+            {(data.languages.length > 0 || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 🌐 Languages Known
@@ -1098,8 +1105,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Events Attended */}
+            {(data.events.length > 0 || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 🎯 Events Attended
@@ -1174,8 +1183,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Hobbies & Passions */}
+            {(data.hobbies.length > 0 || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 🎨 Hobbies & Passions
@@ -1250,6 +1261,7 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
           </section>
         </div>
       </div>
