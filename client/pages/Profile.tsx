@@ -252,8 +252,6 @@ export default function Profile() {
   };
 
   const handleRemoveProfilePicture = () => {
-    console.log("Profile: Removing profile picture, reverting to default");
-
     const updatedData = {
       ...profileData,
       profilePicture: defaultProfileData.profilePicture,
@@ -265,7 +263,6 @@ export default function Profile() {
 
     // Save to localStorage immediately
     localStorage.setItem("profileData", JSON.stringify(updatedData));
-    console.log("Profile: Profile picture removed and saved");
 
     setIsEditingProfilePic(false);
   };
