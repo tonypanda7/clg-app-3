@@ -29,32 +29,12 @@ const defaultProfileData: ProfileData = {
     "Designing for impact. Coding for clarity. Bridging creativity and logic.",
   aboutMe:
     "Hi! I'm Aanya, a Computer Science undergrad who blends design with tech. I'm passionate about creating intuitive interfaces and solving real-world problems with code. When I'm not in front of my laptop, you'll find me painting landscapes or trekking in the Western Ghats. I believe in building things that matter — and doing it with empathy and clarity.",
-  skills: [
-    "Python",
-    "Figma",
-    "React",
-    "Public Speaking",
-    "UI/UX Design",
-    "Java Script",
-    "C / C++",
-  ],
-  projects: [
-    {
-      title: "Smart Attendance App",
-      description: "Facial recognition-based attendance system",
-    },
-    {
-      title: "Event Scheduler",
-      description: "Calendar app built with React and Firebase",
-    },
-  ],
-  certifications: [
-    "Google UX Design Certificate",
-    "Python for Everybody �� Coursera",
-  ],
-  languages: ["English", "Hindi", "Bengali"],
-  events: ["HackNIT 2025", "Code for Change", "UIthon 2.0"],
-  hobbies: ["Painting", "Trekking", "Reading Sci-fi"],
+  skills: [],
+  projects: [],
+  certifications: [],
+  languages: [],
+  events: [],
+  hobbies: [],
   profilePicture: "https://api.builder.io/api/v1/image/assets/TEMP/57bfee8f924a01e67e50dd27cf358181cdc47b94?width=392",
 };
 
