@@ -190,6 +190,42 @@ export default function Profile() {
     navigate("/");
   };
 
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size must be less than 5MB");
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert("Please select an image file");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target?.result as string;
+        setTempData((prev) => ({
+          ...prev,
+          profilePicture: base64String,
+        }));
+        setIsEditingProfilePic(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveProfilePicture = () => {
+    setTempData((prev) => ({
+      ...prev,
+      profilePicture: defaultProfileData.profilePicture,
+    }));
+    setIsEditingProfilePic(false);
+  };
+
   const data = isEditing ? tempData : profileData;
 
   // Dynamic font sizing based on content length
