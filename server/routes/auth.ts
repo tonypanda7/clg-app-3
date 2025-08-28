@@ -456,6 +456,11 @@ export const handleGetUsers: RequestHandler = async (req, res) => {
     const storage = getStorage();
     const users = await storage.getAllUsers();
 
+    console.log('Current database users:');
+    users.forEach(u => {
+      console.log(`- ${u.universityEmail} (${u.fullName}) - verified: ${u.isEmailVerified}`);
+    });
+
     res.json({
       users: users.map(u => ({
         id: u.id,
