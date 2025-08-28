@@ -177,11 +177,13 @@ export default function Profile() {
     setProfileData(tempData);
     localStorage.setItem("profileData", JSON.stringify(tempData));
     setIsEditing(false);
+    setIsEditingProfilePic(false);
   };
 
   const handleCancel = () => {
     setTempData(profileData);
     setIsEditing(false);
+    setIsEditingProfilePic(false);
   };
 
   const handleLogout = () => {
