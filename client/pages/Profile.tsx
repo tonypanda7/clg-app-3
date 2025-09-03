@@ -54,6 +54,20 @@ export default function Profile() {
     return first.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
+  const getProfileStorageKey = (email?: string | null) =>
+    email ? `profileData:${email.toLowerCase()}` : "profileData";
+
+  const getCurrentUserEmail = (): string | null => {
+    try {
+      const raw = localStorage.getItem("userData");
+      if (!raw) return null;
+      const u = JSON.parse(raw);
+      return u?.universityEmail || u?.email || null;
+    } catch {
+      return null;
+    }
+  };
+
   const cleanProfile = (data: ProfileData): ProfileData => {
     const trim = (s?: string) => (s ?? "").trim();
     const cleanedProjects = (data.projects || []).map(p => ({
@@ -91,10 +105,12 @@ export default function Profile() {
 
       let signupFullName = null;
       let signupUniversityName = null;
+      let signupEmail = null as string | null;
       if (tempSignupData) {
         try {
           const signupData = JSON.parse(tempSignupData);
           signupFullName = signupData.fullName;
+          signupEmail = signupData.universityEmail || signupData.email || null;
           signupUniversityName = signupData.universityName || (signupData.universityEmail ? deriveUniversityName(signupData.universityEmail) : null);
           console.log("Profile: Found signup fullName:", signupFullName, "university:", signupUniversityName);
         } catch (error) {
@@ -116,6 +132,10 @@ export default function Profile() {
           };
           setProfileData(initialProfileData);
           setTempData(initialProfileData);
+          try {
+            const key = getProfileStorageKey(signupEmail);
+            localStorage.setItem(key, JSON.stringify(initialProfileData));
+          } catch {}
           return;
         }
 
@@ -131,10 +151,12 @@ export default function Profile() {
         // Determine the fullName to use - prioritize signup data, then stored user data, then default
         const userFullName = signupFullName || parsedUserData.fullName || defaultProfileData.fullName;
         const userUniversity = signupUniversityName || parsedUserData.university || defaultProfileData.university;
-        console.log("Profile: Using fullName:", userFullName, "university:", userUniversity);
+        const userEmail = parsedUserData.universityEmail || parsedUserData.email || signupEmail || null;
+        console.log("Profile: Using fullName:", userFullName, "university:", userUniversity, "email:", userEmail);
 
         // Load saved profile data from localStorage
-        const savedProfile = localStorage.getItem("profileData");
+        const profileKey = getProfileStorageKey(userEmail);
+        const savedProfile = localStorage.getItem(profileKey) || localStorage.getItem("profileData");
         let initialProfileData = defaultProfileData;
 
         if (savedProfile) {
@@ -176,7 +198,11 @@ export default function Profile() {
         setTempData(sanitized);
 
         // Save the corrected profile data for future loads
-        localStorage.setItem("profileData", JSON.stringify(sanitized));
+        try {
+          const key = getProfileStorageKey(userEmail);
+          localStorage.setItem(key, JSON.stringify(sanitized));
+          localStorage.removeItem("profileData");
+        } catch {}
       } catch (error) {
         console.error("Auth check error:", error);
         navigate("/");
