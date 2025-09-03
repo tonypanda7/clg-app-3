@@ -190,7 +190,10 @@ export default function Profile() {
     const cleaned = cleanProfile(tempData);
     setProfileData(cleaned);
     setTempData(cleaned);
-    localStorage.setItem("profileData", JSON.stringify(cleaned));
+    try {
+      const key = getProfileStorageKey(getCurrentUserEmail());
+      localStorage.setItem(key, JSON.stringify(cleaned));
+    } catch {}
     setIsEditing(false);
     setIsEditingProfilePic(false);
     setShowCropModal(false);
