@@ -35,7 +35,7 @@ const defaultProfileData: ProfileData = {
   languages: [],
   events: [],
   hobbies: [],
-  profilePicture: "https://api.builder.io/api/v1/image/assets/TEMP/57bfee8f924a01e67e50dd27cf358181cdc47b94?width=392",
+  profilePicture: undefined,
 };
 
 export default function Profile() {
@@ -234,7 +234,7 @@ export default function Profile() {
   const handleRemoveProfilePicture = () => {
     const updatedData = {
       ...profileData,
-      profilePicture: defaultProfileData.profilePicture,
+      profilePicture: undefined,
     };
 
     // Update both profileData and tempData immediately
@@ -378,11 +378,19 @@ export default function Profile() {
               {/* Profile Image */}
               <div className="flex-shrink-0 relative">
                 <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 xl:w-56 xl:h-56 bg-gray-300 rounded-full overflow-hidden relative group">
-                  <img
-                    src={(isEditing ? tempData.profilePicture : profileData.profilePicture) || defaultProfileData.profilePicture}
-                    alt="profile"
-                    className="w-full h-full object-cover"
-                  />
+                  { (isEditing ? tempData.profilePicture : profileData.profilePicture) ? (
+                    <img
+                      src={(isEditing ? tempData.profilePicture : profileData.profilePicture) as string}
+                      alt="profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                      <span className="text-4xl sm:text-5xl md:text-6xl font-medium text-black/70">
+                        {(isEditing ? tempData.fullName : profileData.fullName)?.charAt(0)?.toUpperCase() || 'U'}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Edit overlay - only show when editing or on hover */}
                   {(isEditing || isEditingProfilePic) && (
@@ -394,7 +402,7 @@ export default function Profile() {
                         >
                           📷 Change
                         </label>
-                        {((isEditing ? tempData.profilePicture : profileData.profilePicture) !== defaultProfileData.profilePicture) && (
+                        {(isEditing ? !!tempData.profilePicture : !!profileData.profilePicture) && (
                           <button
                             onClick={handleRemoveProfilePicture}
                             className="bg-red-500 bg-opacity-90 hover:bg-opacity-100 text-white px-3 py-1 rounded-full text-xs font-medium transition-all"
