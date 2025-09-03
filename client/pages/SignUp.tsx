@@ -58,10 +58,24 @@ export default function SignUp() {
     setErrors([]);
     setShowCollegeEmailError(false);
 
-    // Store form data temporarily for testing profile connection
+    // Helper to derive university name from email domain if verifier data unavailable
+    const deriveUniversityName = (email: string) => {
+      const domain = (email.split("@")[1] || "").toLowerCase();
+      const first = domain.split(".")[0] || "";
+      if (!first) return "";
+      return first
+        .replace(/[-_]+/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    };
+
+    // Store form data temporarily for profile page to pick up name and university
     try {
-      localStorage.setItem("tempSignupData", JSON.stringify(formData));
-      console.log("Stored temp signup data for profile:", formData.fullName);
+      const temp = {
+        ...formData,
+        universityName: collegeInfo?.name || deriveUniversityName(formData.universityEmail),
+      };
+      localStorage.setItem("tempSignupData", JSON.stringify(temp));
+      console.log("Stored temp signup data for profile:", temp.fullName, temp.universityName);
     } catch (error) {
       console.warn("Could not store temp signup data:", error);
     }
