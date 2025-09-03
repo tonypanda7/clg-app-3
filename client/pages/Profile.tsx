@@ -48,6 +48,13 @@ export default function Profile() {
   const [selectedImageSrc, setSelectedImageSrc] = useState<string>("");
   const navigate = useNavigate();
 
+  const deriveUniversityName = (email: string) => {
+    const domain = (email?.split("@")[1] || "").toLowerCase();
+    const first = domain.split(".")[0] || "";
+    if (!first) return "";
+    return first.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
   const cleanProfile = (data: ProfileData): ProfileData => {
     const trim = (s?: string) => (s ?? "").trim();
     const cleanedProjects = (data.projects || []).map(p => ({
@@ -84,11 +91,13 @@ export default function Profile() {
         localStorage.getItem("signupFormData");
 
       let signupFullName = null;
+      let signupUniversityName = null;
       if (tempSignupData) {
         try {
           const signupData = JSON.parse(tempSignupData);
           signupFullName = signupData.fullName;
-          console.log("Profile: Found signup fullName:", signupFullName);
+          signupUniversityName = signupData.universityName || (signupData.universityEmail ? deriveUniversityName(signupData.universityEmail) : null);
+          console.log("Profile: Found signup fullName:", signupFullName, "university:", signupUniversityName);
         } catch (error) {
           console.error("Error parsing temp signup data:", error);
         }
@@ -104,6 +113,7 @@ export default function Profile() {
           const initialProfileData = {
             ...defaultProfileData,
             fullName: signupFullName,
+            university: signupUniversityName || defaultProfileData.university,
           };
           setProfileData(initialProfileData);
           setTempData(initialProfileData);
@@ -121,8 +131,8 @@ export default function Profile() {
 
         // Determine the fullName to use - prioritize signup data, then stored user data, then default
         const userFullName = signupFullName || parsedUserData.fullName || defaultProfileData.fullName;
-        console.log("Profile: Using fullName:", userFullName, "(source:",
-          signupFullName ? "signup" : parsedUserData.fullName ? "auth" : "default", ")");
+        const userUniversity = signupUniversityName || parsedUserData.university || defaultProfileData.university;
+        console.log("Profile: Using fullName:", userFullName, "university:", userUniversity);
 
         // Load saved profile data from localStorage
         const savedProfile = localStorage.getItem("profileData");
@@ -135,6 +145,7 @@ export default function Profile() {
             initialProfileData = {
               ...parsed,
               fullName: userFullName, // Always use the most recent fullName
+              university: userUniversity,
             };
             console.log("Profile: Updated saved profile with correct fullName");
           } catch (error) {
@@ -143,6 +154,7 @@ export default function Profile() {
             initialProfileData = {
               ...defaultProfileData,
               fullName: userFullName,
+              university: userUniversity,
             };
           }
         } else {
@@ -151,6 +163,7 @@ export default function Profile() {
           initialProfileData = {
             ...defaultProfileData,
             fullName: userFullName,
+            university: userUniversity,
           };
         }
 
