@@ -27,8 +27,7 @@ const defaultProfileData: ProfileData = {
   year: "3rd Year",
   quote:
     "Designing for impact. Coding for clarity. Bridging creativity and logic.",
-  aboutMe:
-    "Hi! I'm Aanya, a Computer Science undergrad who blends design with tech. I'm passionate about creating intuitive interfaces and solving real-world problems with code. When I'm not in front of my laptop, you'll find me painting landscapes or trekking in the Western Ghats. I believe in building things that matter — and doing it with empathy and clarity.",
+  aboutMe: "",
   skills: [],
   projects: [],
   certifications: [],
