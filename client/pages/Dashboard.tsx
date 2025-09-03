@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [collegeData, setCollegeData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCollegeData, setIsLoadingCollegeData] = useState(false);
+  const [profile, setProfile] = useState<{ fullName: string; profilePicture?: string } | null>(null);
   const navigate = useNavigate();
 
   // Check authentication and load user data
@@ -69,6 +70,34 @@ export default function Dashboard() {
 
     checkAuth();
   }, [navigate]);
+
+  // Load profile info (name + avatar) from localStorage and signup data for consistent avatar across pages
+  useEffect(() => {
+    try {
+      const tempSignupRaw = localStorage.getItem("tempSignupData") || localStorage.getItem("signupFormData");
+      let signupFullName: string | undefined;
+      if (tempSignupRaw) {
+        try {
+          const parsed = JSON.parse(tempSignupRaw);
+          signupFullName = parsed?.fullName;
+        } catch {}
+      }
+
+      const savedProfileRaw = localStorage.getItem("profileData");
+      let savedProfile: any = null;
+      if (savedProfileRaw) {
+        try {
+          savedProfile = JSON.parse(savedProfileRaw);
+        } catch {}
+      }
+
+      const fullName = signupFullName || savedProfile?.fullName || userData?.fullName || "User";
+      setProfile({ fullName, profilePicture: savedProfile?.profilePicture });
+    } catch (e) {
+      // fallback minimal profile
+      setProfile({ fullName: userData?.fullName || "User" });
+    }
+  }, [userData]);
 
   // Load college data
   const loadCollegeData = async (token: string) => {
@@ -233,11 +262,14 @@ export default function Dashboard() {
             onMouseEnter={() => handleCardHover('User Profile')}
             onMouseLeave={() => handleCardHover(null)}
           >
-            <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
-              <circle cx="25" cy="25" r="25" fill="white"/>
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-black text-sm font-medium opacity-70">N</span>
+            <div className="w-[50px] h-[50px] bg-white rounded-full overflow-hidden flex items-center justify-center">
+              {profile?.profilePicture ? (
+                <img src={profile.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-black text-sm font-medium opacity-70">
+                  {(profile?.fullName || userData?.fullName || 'U').charAt(0).toUpperCase()}
+                </span>
+              )}
             </div>
           </div>
         </div>
