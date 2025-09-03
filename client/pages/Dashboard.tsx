@@ -83,7 +83,9 @@ export default function Dashboard() {
         } catch {}
       }
 
-      const savedProfileRaw = localStorage.getItem("profileData");
+      const email = (userData?.universityEmail || userData?.email || "")?.toLowerCase();
+      const key = email ? `profileData:${email}` : "profileData";
+      const savedProfileRaw = localStorage.getItem(key) || localStorage.getItem("profileData");
       let savedProfile: any = null;
       if (savedProfileRaw) {
         try {
