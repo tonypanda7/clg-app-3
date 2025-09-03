@@ -106,13 +106,15 @@ export default function Profile() {
       let signupFullName = null;
       let signupUniversityName = null;
       let signupEmail = null as string | null;
+      let isNewAccount = false;
       if (tempSignupData) {
         try {
           const signupData = JSON.parse(tempSignupData);
           signupFullName = signupData.fullName;
           signupEmail = signupData.universityEmail || signupData.email || null;
           signupUniversityName = signupData.universityName || (signupData.universityEmail ? deriveUniversityName(signupData.universityEmail) : null);
-          console.log("Profile: Found signup fullName:", signupFullName, "university:", signupUniversityName);
+          isNewAccount = !!signupData.newAccount;
+          console.log("Profile: Found signup fullName:", signupFullName, "university:", signupUniversityName, "newAccount:", isNewAccount);
         } catch (error) {
           console.error("Error parsing temp signup data:", error);
         }
@@ -156,6 +158,9 @@ export default function Profile() {
 
         // Load saved profile data from localStorage
         const profileKey = getProfileStorageKey(userEmail);
+        if (isNewAccount && userEmail) {
+          try { localStorage.removeItem(profileKey); } catch {}
+        }
         const savedProfile = localStorage.getItem(profileKey) || localStorage.getItem("profileData");
         let initialProfileData = defaultProfileData;
 
@@ -202,6 +207,17 @@ export default function Profile() {
           const key = getProfileStorageKey(userEmail);
           localStorage.setItem(key, JSON.stringify(sanitized));
           localStorage.removeItem("profileData");
+          // Clear the newAccount flag after first load
+          const temp = localStorage.getItem("tempSignupData");
+          if (temp) {
+            try {
+              const parsed = JSON.parse(temp);
+              if (parsed?.newAccount) {
+                delete parsed.newAccount;
+                localStorage.setItem("tempSignupData", JSON.stringify(parsed));
+              }
+            } catch {}
+          }
         } catch {}
       } catch (error) {
         console.error("Auth check error:", error);
