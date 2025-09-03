@@ -73,6 +73,7 @@ export default function SignUp() {
       const temp = {
         ...formData,
         universityName: collegeInfo?.name || deriveUniversityName(formData.universityEmail),
+        newAccount: true,
       };
       localStorage.setItem("tempSignupData", JSON.stringify(temp));
       console.log("Stored temp signup data for profile:", temp.fullName, temp.universityName);
