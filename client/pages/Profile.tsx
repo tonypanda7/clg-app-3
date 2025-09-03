@@ -250,7 +250,10 @@ export default function Profile() {
     setTempData(updatedData);
 
     // Save to localStorage immediately
-    localStorage.setItem("profileData", JSON.stringify(updatedData));
+    try {
+      const key = getProfileStorageKey(getCurrentUserEmail());
+      localStorage.setItem(key, JSON.stringify(updatedData));
+    } catch {}
 
     setShowCropModal(false);
     setSelectedImageSrc("");
@@ -274,7 +277,10 @@ export default function Profile() {
     setTempData(updatedData);
 
     // Save to localStorage immediately
-    localStorage.setItem("profileData", JSON.stringify(updatedData));
+    try {
+      const key = getProfileStorageKey(getCurrentUserEmail());
+      localStorage.setItem(key, JSON.stringify(updatedData));
+    } catch {}
 
     setIsEditingProfilePic(false);
   };
