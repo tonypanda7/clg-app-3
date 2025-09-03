@@ -349,15 +349,15 @@ export default function Profile() {
             {/* User avatar */}
             <div className="relative">
               <div className="w-12 h-12 bg-white rounded-full overflow-hidden flex items-center justify-center">
-                {profileData.profilePicture ? (
+                {(isEditing ? tempData.profilePicture : profileData.profilePicture) ? (
                   <img
-                    src={profileData.profilePicture}
+                    src={(isEditing ? tempData.profilePicture : profileData.profilePicture) as string}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <span className="text-lg font-medium text-black/70">
-                    {profileData.fullName?.charAt(0)?.toUpperCase() || 'U'}
+                    {(isEditing ? tempData.fullName : profileData.fullName)?.charAt(0)?.toUpperCase() || 'U'}
                   </span>
                 )}
               </div>
