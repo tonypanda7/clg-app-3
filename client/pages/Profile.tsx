@@ -48,6 +48,23 @@ export default function Profile() {
   const [selectedImageSrc, setSelectedImageSrc] = useState<string>("");
   const navigate = useNavigate();
 
+  const cleanProfile = (data: ProfileData): ProfileData => {
+    const trim = (s?: string) => (s ?? "").trim();
+    const cleanedProjects = (data.projects || []).map(p => ({
+      title: trim(p.title),
+      description: trim(p.description),
+    })).filter(p => p.title || p.description);
+    return {
+      ...data,
+      skills: (data.skills || []).map(s => trim(s)).filter(Boolean),
+      projects: cleanedProjects,
+      certifications: (data.certifications || []).map(s => trim(s)).filter(Boolean),
+      languages: (data.languages || []).map(s => trim(s)).filter(Boolean),
+      events: (data.events || []).map(s => trim(s)).filter(Boolean),
+      hobbies: (data.hobbies || []).map(s => trim(s)).filter(Boolean),
+    };
+  };
+
   // Check authentication and load user data
   useEffect(() => {
     const checkAuth = async () => {
@@ -142,11 +159,12 @@ export default function Profile() {
           username: initialProfileData.username,
         });
 
-        setProfileData(initialProfileData);
-        setTempData(initialProfileData);
+        const sanitized = cleanProfile(initialProfileData);
+        setProfileData(sanitized);
+        setTempData(sanitized);
 
         // Save the corrected profile data for future loads
-        localStorage.setItem("profileData", JSON.stringify(initialProfileData));
+        localStorage.setItem("profileData", JSON.stringify(sanitized));
       } catch (error) {
         console.error("Auth check error:", error);
         navigate("/");
@@ -157,8 +175,10 @@ export default function Profile() {
   }, [navigate]);
 
   const handleSave = () => {
-    setProfileData(tempData);
-    localStorage.setItem("profileData", JSON.stringify(tempData));
+    const cleaned = cleanProfile(tempData);
+    setProfileData(cleaned);
+    setTempData(cleaned);
+    localStorage.setItem("profileData", JSON.stringify(cleaned));
     setIsEditing(false);
     setIsEditingProfilePic(false);
     setShowCropModal(false);
@@ -249,6 +269,13 @@ export default function Profile() {
 
 
   const data = isEditing ? tempData : profileData;
+
+  const hasSkills = (data.skills || []).some(s => s.trim() !== "");
+  const hasProjects = (data.projects || []).some(p => (p.title?.trim() || "") !== "" || (p.description?.trim() || "") !== "");
+  const hasCertifications = (data.certifications || []).some(s => s.trim() !== "");
+  const hasLanguages = (data.languages || []).some(s => s.trim() !== "");
+  const hasEvents = (data.events || []).some(s => s.trim() !== "");
+  const hasHobbies = (data.hobbies || []).some(s => s.trim() !== "");
 
   // Dynamic font sizing based on content length
   const getDynamicNameSize = (text: string) => {
@@ -751,12 +778,12 @@ export default function Profile() {
 
             {/* Show inspiring quote when all sections are empty and not editing */}
             {!isEditing &&
-             data.skills.length === 0 &&
-             data.projects.length === 0 &&
-             data.certifications.length === 0 &&
-             data.languages.length === 0 &&
-             data.events.length === 0 &&
-             data.hobbies.length === 0 && (
+             !hasSkills &&
+             !hasProjects &&
+             !hasCertifications &&
+             !hasLanguages &&
+             !hasEvents &&
+             !hasHobbies && (
               <div className="text-center py-12 px-6">
                 <div className="text-6xl mb-6">🚀</div>
                 <h3 className="text-xl sm:text-2xl font-medium text-gray-800 mb-4">
@@ -774,7 +801,7 @@ export default function Profile() {
             )}
 
             {/* Skills & Interests */}
-            {(data.skills.length > 0 || isEditing) && (
+            {(hasSkills || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 Skills & Interests
@@ -787,7 +814,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="flex flex-wrap gap-3">
-                {data.skills.map((skill, index) => (
+                {(isEditing ? data.skills : data.skills.filter(s => s.trim() !== "")).map((skill, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center bg-blue-100 rounded-full px-4 py-2">
@@ -852,7 +879,7 @@ export default function Profile() {
             )}
 
             {/* Projects */}
-            {(data.projects.length > 0 || isEditing) && (
+            {(hasProjects || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 📁 Projects
@@ -865,7 +892,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="grid md:grid-cols-2 gap-4">
-                {data.projects.map((project, index) => (
+                {(isEditing ? data.projects : data.projects.filter(p => (p.title?.trim() || "") !== "" || (p.description?.trim() || "") !== "")).map((project, index) => (
                   <div
                     key={index}
                     className="bg-blue-100 rounded-full p-6 relative"
@@ -955,7 +982,7 @@ export default function Profile() {
             )}
 
             {/* Certifications */}
-            {(data.certifications.length > 0 || isEditing) && (
+            {(hasCertifications || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 📜 Certifications
@@ -968,7 +995,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="text-sm text-black space-y-2">
-                {data.certifications.map((cert, index) => (
+                {(isEditing ? data.certifications : data.certifications.filter(s => s.trim() !== "")).map((cert, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center w-full">
@@ -1037,7 +1064,7 @@ export default function Profile() {
             )}
 
             {/* Languages Known */}
-            {(data.languages.length > 0 || isEditing) && (
+            {(hasLanguages || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 🌐 Languages Known
@@ -1050,7 +1077,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="flex flex-wrap gap-3">
-                {data.languages.map((language, index) => (
+                {(isEditing ? data.languages : data.languages.filter(s => s.trim() !== "")).map((language, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center bg-blue-100 rounded-full px-4 py-2">
@@ -1115,7 +1142,7 @@ export default function Profile() {
             )}
 
             {/* Events Attended */}
-            {(data.events.length > 0 || isEditing) && (
+            {(hasEvents || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 🎯 Events Attended
@@ -1128,7 +1155,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="flex flex-wrap gap-3">
-                {data.events.map((event, index) => (
+                {(isEditing ? data.events : data.events.filter(s => s.trim() !== "")).map((event, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center bg-blue-100 rounded-full px-4 py-2">
@@ -1193,7 +1220,7 @@ export default function Profile() {
             )}
 
             {/* Hobbies & Passions */}
-            {(data.hobbies.length > 0 || isEditing) && (
+            {(hasHobbies || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 🎨 Hobbies & Passions
@@ -1206,7 +1233,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="flex flex-wrap gap-3">
-                {data.hobbies.map((hobby, index) => (
+                {(isEditing ? data.hobbies : data.hobbies.filter(s => s.trim() !== "")).map((hobby, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center bg-blue-100 rounded-full px-4 py-2">
