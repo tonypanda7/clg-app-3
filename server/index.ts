@@ -22,6 +22,13 @@ import {
   handleDatabaseStats,
   handleResetDatabase
 } from "./routes/admin";
+import {
+  handleGetPosts,
+  handleCreatePost,
+  handleGetUserPosts,
+  handleTogglePostLike,
+  handleDeletePost
+} from "./routes/posts";
 
 export function createServer() {
   const app = express();
