@@ -109,6 +109,36 @@ class Database {
         )
       `);
 
+      // Create posts table if it doesn't exist
+      await run(`
+        CREATE TABLE IF NOT EXISTS posts (
+          id TEXT PRIMARY KEY,
+          userId TEXT NOT NULL,
+          userName TEXT NOT NULL,
+          userAvatar TEXT,
+          content TEXT NOT NULL,
+          timestamp TEXT NOT NULL,
+          likes INTEGER DEFAULT 0,
+          comments INTEGER DEFAULT 0,
+          createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
+        )
+      `);
+
+      // Create post_likes table for tracking likes
+      await run(`
+        CREATE TABLE IF NOT EXISTS post_likes (
+          id TEXT PRIMARY KEY,
+          postId TEXT NOT NULL,
+          userId TEXT NOT NULL,
+          createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(postId, userId),
+          FOREIGN KEY (postId) REFERENCES posts (id) ON DELETE CASCADE,
+          FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
+        )
+      `);
+
       // Add new columns to existing tables (migration)
       try {
         await run(`ALTER TABLE users ADD COLUMN isEmailVerified BOOLEAN DEFAULT 0`);
