@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import ImageCropModal from "../components/ImageCropModal";
 
 interface ProfileData {
   fullName: string;
@@ -15,6 +16,7 @@ interface ProfileData {
   languages: string[];
   events: string[];
   hobbies: string[];
+  profilePicture?: string; // Base64 encoded image or URL
 }
 
 const defaultProfileData: ProfileData = {
@@ -25,34 +27,14 @@ const defaultProfileData: ProfileData = {
   year: "3rd Year",
   quote:
     "Designing for impact. Coding for clarity. Bridging creativity and logic.",
-  aboutMe:
-    "Hi! I'm Aanya, a Computer Science undergrad who blends design with tech. I'm passionate about creating intuitive interfaces and solving real-world problems with code. When I'm not in front of my laptop, you'll find me painting landscapes or trekking in the Western Ghats. I believe in building things that matter — and doing it with empathy and clarity.",
-  skills: [
-    "Python",
-    "Figma",
-    "React",
-    "Public Speaking",
-    "UI/UX Design",
-    "Java Script",
-    "C / C++",
-  ],
-  projects: [
-    {
-      title: "Smart Attendance App",
-      description: "Facial recognition-based attendance system",
-    },
-    {
-      title: "Event Scheduler",
-      description: "Calendar app built with React and Firebase",
-    },
-  ],
-  certifications: [
-    "Google UX Design Certificate",
-    "Python for Everybody �� Coursera",
-  ],
-  languages: ["English", "Hindi", "Bengali"],
-  events: ["HackNIT 2025", "Code for Change", "UIthon 2.0"],
-  hobbies: ["Painting", "Trekking", "Reading Sci-fi"],
+  aboutMe: "",
+  skills: [],
+  projects: [],
+  certifications: [],
+  languages: [],
+  events: [],
+  hobbies: [],
+  profilePicture: undefined,
 };
 
 export default function Profile() {
@@ -60,7 +42,48 @@ export default function Profile() {
   const [profileData, setProfileData] =
     useState<ProfileData>(defaultProfileData);
   const [tempData, setTempData] = useState<ProfileData>(defaultProfileData);
+  const [isEditingProfilePic, setIsEditingProfilePic] = useState(false);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string>("");
   const navigate = useNavigate();
+
+  const deriveUniversityName = (email: string) => {
+    const domain = (email?.split("@")[1] || "").toLowerCase();
+    const first = domain.split(".")[0] || "";
+    if (!first) return "";
+    return first.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
+  const getProfileStorageKey = (email?: string | null) =>
+    email ? `profileData:${email.toLowerCase()}` : "profileData";
+
+  const getCurrentUserEmail = (): string | null => {
+    try {
+      const raw = localStorage.getItem("userData");
+      if (!raw) return null;
+      const u = JSON.parse(raw);
+      return u?.universityEmail || u?.email || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const cleanProfile = (data: ProfileData): ProfileData => {
+    const trim = (s?: string) => (s ?? "").trim();
+    const cleanedProjects = (data.projects || []).map(p => ({
+      title: trim(p.title),
+      description: trim(p.description),
+    })).filter(p => p.title || p.description);
+    return {
+      ...data,
+      skills: (data.skills || []).map(s => trim(s)).filter(Boolean),
+      projects: cleanedProjects,
+      certifications: (data.certifications || []).map(s => trim(s)).filter(Boolean),
+      languages: (data.languages || []).map(s => trim(s)).filter(Boolean),
+      events: (data.events || []).map(s => trim(s)).filter(Boolean),
+      hobbies: (data.hobbies || []).map(s => trim(s)).filter(Boolean),
+    };
+  };
 
   // Check authentication and load user data
   useEffect(() => {
@@ -75,38 +98,50 @@ export default function Profile() {
         !!storedUserData,
       );
 
-      // For development/testing, allow access even without auth
-      // Remove this condition in production
+      // First, always check for temporary signup data to get the most recent fullName
+      const tempSignupData =
+        localStorage.getItem("tempSignupData") ||
+        localStorage.getItem("signupFormData");
+
+      let signupFullName = null;
+      let signupUniversityName = null;
+      let signupEmail = null as string | null;
+      let isNewAccount = false;
+      if (tempSignupData) {
+        try {
+          const signupData = JSON.parse(tempSignupData);
+          signupFullName = signupData.fullName;
+          signupEmail = signupData.universityEmail || signupData.email || null;
+          signupUniversityName = signupData.universityName || (signupData.universityEmail ? deriveUniversityName(signupData.universityEmail) : null);
+          isNewAccount = !!signupData.newAccount;
+          console.log("Profile: Found signup fullName:", signupFullName, "university:", signupUniversityName, "newAccount:", isNewAccount);
+        } catch (error) {
+          console.error("Error parsing temp signup data:", error);
+        }
+      }
+
+      // If no auth data, use signup data or redirect
       if (!token || !storedUserData) {
         console.log(
-          "Profile: No auth data found, checking for any stored signup data...",
+          "Profile: No auth data found, checking for signup data...",
         );
 
-        // Try to find any signup data that might exist
-        const tempSignupData =
-          localStorage.getItem("tempSignupData") ||
-          localStorage.getItem("signupFormData");
-
-        if (tempSignupData) {
+        if (signupFullName) {
+          const initialProfileData = {
+            ...defaultProfileData,
+            fullName: signupFullName,
+            university: signupUniversityName || defaultProfileData.university,
+          };
+          setProfileData(initialProfileData);
+          setTempData(initialProfileData);
           try {
-            const signupData = JSON.parse(tempSignupData);
-            console.log("Profile: Found temp signup data:", signupData);
-
-            const initialProfileData = {
-              ...defaultProfileData,
-              fullName: signupData.fullName || defaultProfileData.fullName,
-              // Keep the default username, don't generate from name
-            };
-
-            setProfileData(initialProfileData);
-            setTempData(initialProfileData);
-            return;
-          } catch (error) {
-            console.error("Error parsing temp signup data:", error);
-          }
+            const key = getProfileStorageKey(signupEmail);
+            localStorage.setItem(key, JSON.stringify(initialProfileData));
+          } catch {}
+          return;
         }
 
-        // If no auth and no temp data, redirect to signin
+        // If no signup data either, redirect to signin
         navigate("/");
         return;
       }
@@ -115,35 +150,75 @@ export default function Profile() {
         const parsedUserData = JSON.parse(storedUserData);
         console.log("Profile: Parsed user data:", parsedUserData);
 
+        // Determine the fullName to use - prioritize signup data, then stored user data, then default
+        const userFullName = signupFullName || parsedUserData.fullName || defaultProfileData.fullName;
+        const userUniversity = signupUniversityName || parsedUserData.university || defaultProfileData.university;
+        const userEmail = parsedUserData.universityEmail || parsedUserData.email || signupEmail || null;
+        console.log("Profile: Using fullName:", userFullName, "university:", userUniversity, "email:", userEmail);
+
         // Load saved profile data from localStorage
-        const savedProfile = localStorage.getItem("profileData");
+        const profileKey = getProfileStorageKey(userEmail);
+        if (isNewAccount && userEmail) {
+          try { localStorage.removeItem(profileKey); } catch {}
+        }
+        const savedProfile = localStorage.getItem(profileKey) || localStorage.getItem("profileData");
         let initialProfileData = defaultProfileData;
 
         if (savedProfile) {
           try {
-            initialProfileData = JSON.parse(savedProfile);
-            console.log("Profile: Using saved profile data");
+            const parsed = JSON.parse(savedProfile);
+            // Even if we have saved profile data, update the fullName if we have more recent signup data
+            initialProfileData = {
+              ...parsed,
+              fullName: userFullName, // Always use the most recent fullName
+              university: userUniversity,
+            };
+            console.log("Profile: Updated saved profile with correct fullName");
           } catch (error) {
             console.error("Error loading profile data:", error);
+            // Fallback to initial data with correct name
+            initialProfileData = {
+              ...defaultProfileData,
+              fullName: userFullName,
+              university: userUniversity,
+            };
           }
         } else {
-          // If no saved profile, initialize with user data from signup
-          console.log("Profile: Initializing with signup data");
-
+          // If no saved profile, initialize with correct fullName
+          console.log("Profile: Initializing new profile with correct fullName");
           initialProfileData = {
             ...defaultProfileData,
-            fullName: parsedUserData.fullName || defaultProfileData.fullName,
-            // Keep the default username, don't generate from name
+            fullName: userFullName,
+            university: userUniversity,
           };
-
-          console.log("Profile: Generated initial profile:", {
-            fullName: initialProfileData.fullName,
-            username: initialProfileData.username,
-          });
         }
 
-        setProfileData(initialProfileData);
-        setTempData(initialProfileData);
+        console.log("Profile: Final profile data:", {
+          fullName: initialProfileData.fullName,
+          username: initialProfileData.username,
+        });
+
+        const sanitized = cleanProfile(initialProfileData);
+        setProfileData(sanitized);
+        setTempData(sanitized);
+
+        // Save the corrected profile data for future loads
+        try {
+          const key = getProfileStorageKey(userEmail);
+          localStorage.setItem(key, JSON.stringify(sanitized));
+          localStorage.removeItem("profileData");
+          // Clear the newAccount flag after first load
+          const temp = localStorage.getItem("tempSignupData");
+          if (temp) {
+            try {
+              const parsed = JSON.parse(temp);
+              if (parsed?.newAccount) {
+                delete parsed.newAccount;
+                localStorage.setItem("tempSignupData", JSON.stringify(parsed));
+              }
+            } catch {}
+          }
+        } catch {}
       } catch (error) {
         console.error("Auth check error:", error);
         navigate("/");
@@ -154,14 +229,25 @@ export default function Profile() {
   }, [navigate]);
 
   const handleSave = () => {
-    setProfileData(tempData);
-    localStorage.setItem("profileData", JSON.stringify(tempData));
+    const cleaned = cleanProfile(tempData);
+    setProfileData(cleaned);
+    setTempData(cleaned);
+    try {
+      const key = getProfileStorageKey(getCurrentUserEmail());
+      localStorage.setItem(key, JSON.stringify(cleaned));
+    } catch {}
     setIsEditing(false);
+    setIsEditingProfilePic(false);
+    setShowCropModal(false);
+    setSelectedImageSrc("");
   };
 
   const handleCancel = () => {
     setTempData(profileData);
     setIsEditing(false);
+    setIsEditingProfilePic(false);
+    setShowCropModal(false);
+    setSelectedImageSrc("");
   };
 
   const handleLogout = () => {
@@ -170,7 +256,89 @@ export default function Profile() {
     navigate("/");
   };
 
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size must be less than 5MB");
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert("Please select an image file");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target?.result as string;
+        setSelectedImageSrc(base64String);
+        setShowCropModal(true);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Reset the input value so the same file can be selected again
+    event.target.value = '';
+  };
+
+  const handleCropSave = (croppedImage: string) => {
+    const updatedData = {
+      ...profileData,
+      profilePicture: croppedImage,
+    };
+
+    // Update both profileData and tempData immediately
+    setProfileData(updatedData);
+    setTempData(updatedData);
+
+    // Save to localStorage immediately
+    try {
+      const key = getProfileStorageKey(getCurrentUserEmail());
+      localStorage.setItem(key, JSON.stringify(updatedData));
+    } catch {}
+
+    setShowCropModal(false);
+    setSelectedImageSrc("");
+    setIsEditingProfilePic(false);
+  };
+
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setSelectedImageSrc("");
+    setIsEditingProfilePic(false);
+  };
+
+  const handleRemoveProfilePicture = () => {
+    const updatedData = {
+      ...profileData,
+      profilePicture: undefined,
+    };
+
+    // Update both profileData and tempData immediately
+    setProfileData(updatedData);
+    setTempData(updatedData);
+
+    // Save to localStorage immediately
+    try {
+      const key = getProfileStorageKey(getCurrentUserEmail());
+      localStorage.setItem(key, JSON.stringify(updatedData));
+    } catch {}
+
+    setIsEditingProfilePic(false);
+  };
+
+
   const data = isEditing ? tempData : profileData;
+
+  const hasSkills = (data.skills || []).some(s => s.trim() !== "");
+  const hasProjects = (data.projects || []).some(p => (p.title?.trim() || "") !== "" || (p.description?.trim() || "") !== "");
+  const hasCertifications = (data.certifications || []).some(s => s.trim() !== "");
+  const hasLanguages = (data.languages || []).some(s => s.trim() !== "");
+  const hasEvents = (data.events || []).some(s => s.trim() !== "");
+  const hasHobbies = (data.hobbies || []).some(s => s.trim() !== "");
 
   // Dynamic font sizing based on content length
   const getDynamicNameSize = (text: string) => {
@@ -270,8 +438,18 @@ export default function Profile() {
 
             {/* User avatar */}
             <div className="relative">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                <span className="text-lg font-medium text-black/70">N</span>
+              <div className="w-12 h-12 bg-white rounded-full overflow-hidden flex items-center justify-center">
+                {(isEditing ? tempData.profilePicture : profileData.profilePicture) ? (
+                  <img
+                    src={(isEditing ? tempData.profilePicture : profileData.profilePicture) as string}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-lg font-medium text-black/70">
+                    {(isEditing ? tempData.fullName : profileData.fullName)?.charAt(0)?.toUpperCase() || 'U'}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -282,110 +460,81 @@ export default function Profile() {
           className="ml-24 sm:ml-28 md:ml-32 lg:ml-36 xl:ml-40 pt-24 max-w-full overflow-x-hidden break-words"
           style={{ wordWrap: "break-word", overflowWrap: "break-word" }}
         >
-          {/* Edit Controls */}
-          <div className="flex justify-end mb-6 gap-3">
-            {!isEditing ? (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleCancel}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                >
-                  Save Changes
-                </button>
-              </>
-            )}
-          </div>
-          {/* Profile Header with PROFILE title, profile picture, and name */}
+          {/* Profile Header with profile picture and name */}
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-8 mb-12 max-w-full overflow-x-hidden">
-            {/* PROFILE Title, Profile Picture, and Name Section */}
+            {/* Profile Picture and Name Section */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 flex-1 min-w-0">
-              {/* PROFILE Title */}
-              <div className="flex-shrink-0">
-                <div className="flex items-baseline space-x-1">
-                  <span
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-black"
-                    style={{ fontFamily: "Limelight, serif" }}
-                  >
-                    P
-                  </span>
-                  <span
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-black"
-                    style={{ fontFamily: "Limelight, serif" }}
-                  >
-                    R
-                  </span>
-                  <span
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-black"
-                    style={{ fontFamily: "Limelight, serif" }}
-                  >
-                    O
-                  </span>
-                </div>
-                <div className="flex items-baseline space-x-1 -mt-2">
-                  <span
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-transparent"
-                    style={{
-                      fontFamily: "serif",
-                      WebkitTextStroke: "2px black",
-                    }}
-                  >
-                    F
-                  </span>
-                  <span
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-transparent"
-                    style={{
-                      fontFamily: "serif",
-                      WebkitTextStroke: "2px black",
-                    }}
-                  >
-                    I
-                  </span>
-                  <span
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-transparent"
-                    style={{
-                      fontFamily: "serif",
-                      WebkitTextStroke: "2px black",
-                    }}
-                  >
-                    L
-                  </span>
-                  <span
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-transparent"
-                    style={{
-                      fontFamily: "serif",
-                      WebkitTextStroke: "2px black",
-                    }}
-                  >
-                    E
-                  </span>
-                </div>
-              </div>
-
-              {/* Vertical separator line */}
-              <div className="w-px h-20 sm:h-24 md:h-32 lg:h-40 xl:h-48 bg-black flex-shrink-0"></div>
 
               {/* Profile Image */}
-              <div className="flex-shrink-0">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 xl:w-56 xl:h-56 bg-gray-300 rounded-full overflow-hidden">
-                  <img
-                    src="https://api.builder.io/api/v1/image/assets/TEMP/57bfee8f924a01e67e50dd27cf358181cdc47b94?width=392"
-                    alt="profile"
-                    className="w-full h-full object-cover"
-                  />
+              <div className="flex-shrink-0 relative">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 xl:w-56 xl:h-56 bg-gray-300 rounded-full overflow-hidden relative group">
+                  { (isEditing ? tempData.profilePicture : profileData.profilePicture) ? (
+                    <img
+                      src={(isEditing ? tempData.profilePicture : profileData.profilePicture) as string}
+                      alt="profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                      <span className="text-4xl sm:text-5xl md:text-6xl font-medium text-black/70">
+                        {(isEditing ? tempData.fullName : profileData.fullName)?.charAt(0)?.toUpperCase() || 'U'}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Edit overlay - only show when editing or on hover */}
+                  {(isEditing || isEditingProfilePic) && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full">
+                      <div className="flex flex-col items-center gap-2">
+                        <label
+                          htmlFor="profile-picture-upload"
+                          className="cursor-pointer bg-white bg-opacity-90 hover:bg-opacity-100 text-black px-3 py-1 rounded-full text-xs font-medium transition-all"
+                        >
+                          📷 Change
+                        </label>
+                        {(isEditing ? !!tempData.profilePicture : !!profileData.profilePicture) && (
+                          <button
+                            onClick={handleRemoveProfilePicture}
+                            className="bg-red-500 bg-opacity-90 hover:bg-opacity-100 text-white px-3 py-1 rounded-full text-xs font-medium transition-all"
+                          >
+                            🗑️ Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Show edit button when not in editing mode but hovering */}
+                  {!isEditing && !isEditingProfilePic && (
+                    <div
+                      className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer"
+                      onClick={() => setIsEditingProfilePic(true)}
+                    >
+                      <span className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 text-black px-3 py-1 rounded-full text-xs font-medium transition-all">
+                        📷 Edit
+                      </span>
+                    </div>
+                  )}
                 </div>
+
+                {/* Hidden file input */}
+                <input
+                  id="profile-picture-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePictureChange}
+                  className="hidden"
+                />
+
+                {/* Cancel edit button when editing profile pic only */}
+                {isEditingProfilePic && !isEditing && (
+                  <button
+                    onClick={() => setIsEditingProfilePic(false)}
+                    className="absolute -bottom-2 -right-2 bg-gray-200 hover:bg-gray-300 text-black rounded-full w-8 h-8 flex items-center justify-center text-sm transition-colors"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
               {/* Profile Info */}
@@ -401,7 +550,7 @@ export default function Profile() {
                           fullName: e.target.value,
                         }))
                       }
-                      className={`${getDynamicNameSize(tempData.fullName)} font-medium text-black mb-2 bg-transparent border-b-2 border-gray-300 focus:border-blue-500 outline-none w-full max-w-full box-border break-words`}
+                      className={`${getDynamicNameSize(tempData.fullName)} font-medium text-black mb-2 bg-transparent outline-none w-full max-w-full box-border break-words`}
                       style={{
                         fontFamily: "Roboto Flex, sans-serif",
                         wordWrap: "break-word",
@@ -433,7 +582,7 @@ export default function Profile() {
                             username: e.target.value,
                           }))
                         }
-                        className={`${getDynamicUsernameSize(tempData.username)} text-black/70 mb-1 bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none w-full max-w-xs`}
+                        className={`${getDynamicUsernameSize(tempData.username)} text-black/70 mb-1 bg-transparent outline-none w-full max-w-xs`}
                       />
                       {!tempData.username && (
                         <p className="text-xs text-gray-500 mb-3 italic">
@@ -477,7 +626,7 @@ export default function Profile() {
                                 university: e.target.value,
                               }))
                             }
-                            className="bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none max-w-[180px] flex-shrink"
+                            className="bg-transparent outline-none max-w-[180px] flex-shrink"
                             placeholder="University"
                           />
                           <span className="w-1 h-1 bg-gray-400 rounded-full flex-shrink-0"></span>
@@ -490,7 +639,7 @@ export default function Profile() {
                                 degree: e.target.value,
                               }))
                             }
-                            className="bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none max-w-[160px] flex-shrink"
+                            className="bg-transparent outline-none max-w-[160px] flex-shrink"
                             placeholder="Degree"
                           />
                           <span className="w-1 h-1 bg-gray-400 rounded-full flex-shrink-0"></span>
@@ -503,7 +652,7 @@ export default function Profile() {
                                 year: e.target.value,
                               }))
                             }
-                            className="bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none max-w-[80px] flex-shrink"
+                            className="bg-transparent outline-none max-w-[80px] flex-shrink"
                             placeholder="Year"
                           />
                         </>
@@ -536,7 +685,7 @@ export default function Profile() {
                             quote: e.target.value,
                           }))
                         }
-                        className={`${getDynamicQuoteSize(tempData.quote)} italic text-gray-600 mb-1 max-w-full bg-transparent border border-gray-300 focus:border-blue-500 outline-none p-2 rounded w-full resize-none break-words`}
+                        className={`${getDynamicQuoteSize(tempData.quote)} italic text-gray-600 mb-1 max-w-full bg-transparent outline-none p-2 w-full resize-none break-words`}
                         rows={2}
                         placeholder="Your quote..."
                         style={{
@@ -564,9 +713,43 @@ export default function Profile() {
                       </p>
                     )}
                   </div>
-                  <button className="px-4 py-2 text-sm bg-yellow-100 text-black rounded-full hover:bg-yellow-200 transition-colors">
-                    Message +
-                  </button>
+                  <div className="flex gap-3">
+                    <button className="px-4 py-2 text-sm bg-yellow-100 text-black rounded-full hover:bg-yellow-200 transition-colors">
+                      Message +
+                    </button>
+                    {!isEditing ? (
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm bg-[rgba(192,206,255,0.87)] text-black rounded-full hover:bg-[rgba(182,196,245,0.87)] transition-colors"
+                      >
+                        Edit
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M5.66682 2.55556H3.48904C2.61785 2.55556 2.18193 2.55556 1.84918 2.7251C1.55648 2.87424 1.31868 3.11203 1.16955 3.40473C1 3.73748 1 4.1734 1 5.0446V12.5113C1 13.3825 1 13.8178 1.16955 14.1506C1.31868 14.4433 1.55648 14.6815 1.84918 14.8306C2.1816 15 2.617 15 3.48649 15H10.958C11.8274 15 12.2622 15 12.5946 14.8306C12.8873 14.6815 13.1259 14.443 13.2751 14.1504C13.4444 13.8179 13.4444 13.383 13.4444 12.5135V10.3333M10.3333 3.33333L5.66667 8V10.3333H8L12.6667 5.66667M10.3333 3.33333L12.6667 1L15 3.33333L12.6667 5.66667M10.3333 3.33333L12.6667 5.66667" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={handleCancel}
+                          className="flex items-center gap-2 px-4 py-2 text-sm bg-gray-200 text-black rounded-full hover:bg-gray-300 transition-colors"
+                        >
+                          Cancel
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 4L4 12M4 4L12 12" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                        <button
+                          onClick={handleSave}
+                          className="flex items-center gap-2 px-4 py-2 text-sm bg-green-200 text-black rounded-full hover:bg-green-300 transition-colors"
+                        >
+                          Save
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13.5 4.5L6 12L2.5 8.5" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -611,19 +794,13 @@ export default function Profile() {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-black mb-4 lg:mb-6 flex items-center">
               💬 About Me
             </h2>
-            {!tempData.aboutMe && (
-              <p className="text-sm text-gray-500 mb-4 italic">
-                Tell others about yourself, your background, interests, and what
-                drives you. Share your story and what makes you unique.
-              </p>
-            )}
             {isEditing ? (
               <textarea
                 value={tempData.aboutMe}
                 onChange={(e) =>
                   setTempData((prev) => ({ ...prev, aboutMe: e.target.value }))
                 }
-                className="text-sm sm:text-base lg:text-lg text-black leading-relaxed w-full max-w-full bg-transparent border border-gray-300 focus:border-blue-500 outline-none p-4 rounded resize-none box-border break-words"
+                className="text-sm sm:text-base lg:text-lg text-black leading-relaxed w-full max-w-full bg-transparent outline-none p-4 resize-none box-border break-words"
                 rows={4}
                 placeholder="Tell us about yourself..."
                 style={{
@@ -633,16 +810,26 @@ export default function Profile() {
                 }}
               />
             ) : (
-              <p
-                className="text-sm sm:text-base lg:text-lg text-black leading-relaxed break-words"
-                style={{
-                  wordWrap: "break-word",
-                  overflowWrap: "break-word",
-                  wordBreak: "break-word",
-                }}
-              >
-                {data.aboutMe}
-              </p>
+              <>
+                {data.aboutMe && data.aboutMe.trim() ? (
+                  <p
+                    className="text-sm sm:text-base lg:text-lg text-black leading-relaxed break-words"
+                    style={{
+                      wordWrap: "break-word",
+                      overflowWrap: "break-word",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {data.aboutMe}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500 italic leading-relaxed">
+                    This is where you can share your story! Tell others about your background, interests, goals, and what drives you.
+                    Share your passions, experiences, and what makes you unique. This personal touch helps others connect with you and
+                    understand who you are beyond your professional achievements.
+                  </p>
+                )}
+              </>
             )}
           </section>
 
@@ -651,13 +838,33 @@ export default function Profile() {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-medium text-black mb-6 lg:mb-8">
               💼 Academic & Professional
             </h2>
-            <p className="text-sm text-gray-500 mb-6 italic">
-              Showcase your academic achievements, professional experience, and
-              career highlights. This is where you highlight your expertise and
-              accomplishments.
-            </p>
+
+            {/* Show inspiring quote when all sections are empty and not editing */}
+            {!isEditing &&
+             !hasSkills &&
+             !hasProjects &&
+             !hasCertifications &&
+             !hasLanguages &&
+             !hasEvents &&
+             !hasHobbies && (
+              <div className="text-center py-12 px-6">
+                <div className="text-6xl mb-6">🚀</div>
+                <h3 className="text-xl sm:text-2xl font-medium text-gray-800 mb-4">
+                  Ready to showcase your journey?
+                </h3>
+                <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto leading-relaxed">
+                  "Every expert was once a beginner. Every professional was once an amateur.
+                  Every icon was once an unknown."
+                </p>
+                <p className="text-sm text-gray-500 italic">
+                  Click Edit to start building your professional story — add your skills, projects,
+                  achievements, and let the world see what makes you unique!
+                </p>
+              </div>
+            )}
 
             {/* Skills & Interests */}
+            {(hasSkills || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 Skills & Interests
@@ -670,7 +877,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="flex flex-wrap gap-3">
-                {data.skills.map((skill, index) => (
+                {(isEditing ? data.skills : data.skills.filter(s => s.trim() !== "")).map((skill, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center bg-blue-100 rounded-full px-4 py-2">
@@ -732,8 +939,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Projects */}
+            {(hasProjects || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 📁 Projects
@@ -746,7 +955,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="grid md:grid-cols-2 gap-4">
-                {data.projects.map((project, index) => (
+                {(isEditing ? data.projects : data.projects.filter(p => (p.title?.trim() || "") !== "" || (p.description?.trim() || "") !== "")).map((project, index) => (
                   <div
                     key={index}
                     className="bg-blue-100 rounded-full p-6 relative"
@@ -833,8 +1042,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Certifications */}
+            {(hasCertifications || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 📜 Certifications
@@ -847,7 +1058,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="text-sm text-black space-y-2">
-                {data.certifications.map((cert, index) => (
+                {(isEditing ? data.certifications : data.certifications.filter(s => s.trim() !== "")).map((cert, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center w-full">
@@ -862,7 +1073,7 @@ export default function Profile() {
                               certifications: newCerts,
                             }));
                           }}
-                          className="bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none flex-1 break-words"
+                          className="bg-transparent outline-none flex-1 break-words"
                           placeholder="Certification"
                           style={{
                             wordWrap: "break-word",
@@ -913,8 +1124,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Languages Known */}
+            {(hasLanguages || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 🌐 Languages Known
@@ -927,7 +1140,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="flex flex-wrap gap-3">
-                {data.languages.map((language, index) => (
+                {(isEditing ? data.languages : data.languages.filter(s => s.trim() !== "")).map((language, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center bg-blue-100 rounded-full px-4 py-2">
@@ -989,8 +1202,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Events Attended */}
+            {(hasEvents || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 🎯 Events Attended
@@ -1003,7 +1218,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="flex flex-wrap gap-3">
-                {data.events.map((event, index) => (
+                {(isEditing ? data.events : data.events.filter(s => s.trim() !== "")).map((event, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center bg-blue-100 rounded-full px-4 py-2">
@@ -1065,8 +1280,10 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Hobbies & Passions */}
+            {(hasHobbies || isEditing) && (
             <div className="mb-6 lg:mb-8">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-black mb-3 lg:mb-4">
                 🎨 Hobbies & Passions
@@ -1079,7 +1296,7 @@ export default function Profile() {
                 </p>
               )}
               <div className="flex flex-wrap gap-3">
-                {data.hobbies.map((hobby, index) => (
+                {(isEditing ? data.hobbies : data.hobbies.filter(s => s.trim() !== "")).map((hobby, index) => (
                   <div key={index} className="flex items-center">
                     {isEditing ? (
                       <div className="flex items-center bg-blue-100 rounded-full px-4 py-2">
@@ -1141,6 +1358,7 @@ export default function Profile() {
                 )}
               </div>
             </div>
+            )}
           </section>
         </div>
       </div>
@@ -1154,6 +1372,14 @@ export default function Profile() {
           Logout
         </button>
       </div>
+
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        isOpen={showCropModal}
+        imageSrc={selectedImageSrc}
+        onSave={handleCropSave}
+        onCancel={handleCropCancel}
+      />
     </div>
   );
 }

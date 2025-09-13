@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import Feed from "./pages/Feed";
 import SignUp from "./pages/SignUp";
 import VerifyEmail from "./pages/VerifyEmail";
 import TestEmailVerification from "./pages/TestEmailVerification";
@@ -28,6 +29,8 @@ import ResponseErrorTest from "./pages/ResponseErrorTest";
 import ForgotPassword from "./pages/ForgotPassword";
 import ApiTest from "./pages/ApiTest";
 import Demo from "./pages/Demo";
+import DatabaseDebug from "./pages/DatabaseDebug";
+import Fix401 from "./pages/Fix401";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +45,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/feed" element={<Feed />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/test-email" element={<TestEmailVerification />} />
@@ -61,6 +65,8 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/api-test" element={<ApiTest />} />
           <Route path="/demo" element={<Demo />} />
+          <Route path="/db-debug" element={<DatabaseDebug />} />
+          <Route path="/fix-401" element={<Fix401 />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -16,6 +16,8 @@ export default function SignUp() {
   const [isSignupComplete, setIsSignupComplete] = useState(false);
   const [isCollegeEmailVerified, setIsCollegeEmailVerified] = useState(false);
   const [collegeInfo, setCollegeInfo] = useState<any>(null);
+  const [collegeEmailError, setCollegeEmailError] = useState<string>("");
+  const [showCollegeEmailError, setShowCollegeEmailError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   // Validate navigation function on component mount
@@ -30,14 +32,19 @@ export default function SignUp() {
     // Clear errors when user starts typing
     if (error) setError("");
     if (errors.length > 0) setErrors([]);
+    // Hide college email error display but keep the error stored for validation
+    if (showCollegeEmailError) setShowCollegeEmailError(false);
   };
 
   const handleCollegeVerification = (
     isVerified: boolean,
     collegeData?: any,
+    errorMessage?: string,
   ) => {
     setIsCollegeEmailVerified(isVerified);
     setCollegeInfo(collegeData);
+    // Store the error but don't show it until form submission
+    setCollegeEmailError(errorMessage || "");
 
     if (isVerified && collegeData) {
       console.log("College verified:", collegeData.name);
@@ -49,11 +56,27 @@ export default function SignUp() {
     setIsLoading(true);
     setError("");
     setErrors([]);
+    setShowCollegeEmailError(false);
 
-    // Store form data temporarily for testing profile connection
+    // Helper to derive university name from email domain if verifier data unavailable
+    const deriveUniversityName = (email: string) => {
+      const domain = (email.split("@")[1] || "").toLowerCase();
+      const first = domain.split(".")[0] || "";
+      if (!first) return "";
+      return first
+        .replace(/[-_]+/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    };
+
+    // Store form data temporarily for profile page to pick up name and university
     try {
-      localStorage.setItem("tempSignupData", JSON.stringify(formData));
-      console.log("Stored temp signup data for profile:", formData.fullName);
+      const temp = {
+        ...formData,
+        universityName: collegeInfo?.name || deriveUniversityName(formData.universityEmail),
+        newAccount: true,
+      };
+      localStorage.setItem("tempSignupData", JSON.stringify(temp));
+      console.log("Stored temp signup data for profile:", temp.fullName, temp.universityName);
     } catch (error) {
       console.warn("Could not store temp signup data:", error);
     }
@@ -75,6 +98,10 @@ export default function SignUp() {
         frontendErrors.push(
           "Please use a verified college or university email address",
         );
+        // Show the college email error when form is submitted
+        if (collegeEmailError) {
+          setShowCollegeEmailError(true);
+        }
       }
       if (!formData.password?.trim())
         frontendErrors.push("Password is required");
@@ -373,6 +400,7 @@ export default function SignUp() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+
               {/* Error Messages */}
               {error && (
                 <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
@@ -438,7 +466,7 @@ export default function SignUp() {
                         <ul className="space-y-2">
                           {errors.map((err, index) => (
                             <li key={index} className="flex items-start">
-                              <span className="text-red-400 mr-2">•</span>
+                              <span className="text-red-400 mr-2">��</span>
                               <div className="flex-1">
                                 <span>{err}</span>
                                 {/* Show helpful actions for duplicate email in error list */}
