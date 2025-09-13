@@ -29,6 +29,26 @@ interface User {
   };
 }
 
+interface Post {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  content: string;
+  timestamp: string;
+  likes: number;
+  comments: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface PostLike {
+  id: string;
+  postId: string;
+  userId: string;
+  createdAt: Date;
+}
+
 const DB_PATH = path.join(process.cwd(), 'data', 'users.db');
 
 class Database {
