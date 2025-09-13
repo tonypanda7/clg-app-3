@@ -88,5 +88,12 @@ export function createServer() {
   app.get("/api/admin/database-stats", handleDatabaseStats);
   app.post("/api/admin/reset-database", handleResetDatabase);
 
+  // Posts routes
+  app.get("/api/posts", handleGetPosts);
+  app.post("/api/posts", handleCreatePost);
+  app.get("/api/posts/user/:userId", handleGetUserPosts);
+  app.post("/api/posts/:postId/like", handleTogglePostLike);
+  app.delete("/api/posts/:postId", handleDeletePost);
+
   return app;
 }
