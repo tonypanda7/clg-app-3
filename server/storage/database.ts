@@ -434,4 +434,4 @@ export function getDatabase(): Database {
   return dbInstance;
 }
 
-export { Database, User, Post, PostLike };
+export { Database, User };
