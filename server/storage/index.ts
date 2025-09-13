@@ -431,4 +431,4 @@ export function getStorage(): StorageInterface {
   return storageInstance;
 }
 
-export { User, StorageInterface };
+export { User, Post, StorageInterface };
