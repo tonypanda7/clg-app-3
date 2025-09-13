@@ -183,6 +183,43 @@ class FileStorage implements StorageInterface {
     const { clearAllUsers } = await import('./fileStorage');
     return clearAllUsers();
   }
+
+  // Post methods - placeholder implementations
+  async createPost(postData: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    throw new Error('Post methods not implemented for file storage');
+  }
+
+  async getAllPosts(limit: number = 10, offset: number = 0): Promise<Post[]> {
+    return [];
+  }
+
+  async getPostsCount(): Promise<number> {
+    return 0;
+  }
+
+  async getUserPosts(userId: string, limit: number = 10, offset: number = 0): Promise<Post[]> {
+    return [];
+  }
+
+  async getUserPostsCount(userId: string): Promise<number> {
+    return 0;
+  }
+
+  async getPostById(postId: string): Promise<Post | undefined> {
+    return undefined;
+  }
+
+  async deletePost(postId: string): Promise<void> {
+    // No-op
+  }
+
+  async togglePostLike(postId: string, userId: string): Promise<{ liked: boolean; likesCount: number }> {
+    return { liked: false, likesCount: 0 };
+  }
+
+  async getUserById(userId: string): Promise<User | undefined> {
+    return this.findUserById(userId);
+  }
 }
 
 // Database Storage (requires sqlite3 package)
