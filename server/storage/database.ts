@@ -271,6 +271,142 @@ class Database {
     console.log('All users cleared from database');
   }
 
+  // Posts methods
+  async createPost(postData: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    await this.initializeDatabase();
+    const run = promisify(this.db.run.bind(this.db));
+
+    const postId = `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date().toISOString();
+
+    await run(`
+      INSERT INTO posts (
+        id, userId, userName, userAvatar, content, timestamp, likes, comments, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      postId, postData.userId, postData.userName, postData.userAvatar,
+      postData.content, postData.timestamp, postData.likes, postData.comments,
+      now, now
+    ]);
+
+    return postId;
+  }
+
+  async getAllPosts(limit: number = 10, offset: number = 0): Promise<Post[]> {
+    await this.initializeDatabase();
+    const all = promisify(this.db.all.bind(this.db));
+
+    const rows = await all(`
+      SELECT * FROM posts
+      ORDER BY createdAt DESC
+      LIMIT ? OFFSET ?
+    `, [limit, offset]);
+
+    return rows.map(row => this.rowToPost(row));
+  }
+
+  async getPostsCount(): Promise<number> {
+    await this.initializeDatabase();
+    const get = promisify(this.db.get.bind(this.db));
+
+    const row = await get(`SELECT COUNT(*) as count FROM posts`);
+    return row.count;
+  }
+
+  async getUserPosts(userId: string, limit: number = 10, offset: number = 0): Promise<Post[]> {
+    await this.initializeDatabase();
+    const all = promisify(this.db.all.bind(this.db));
+
+    const rows = await all(`
+      SELECT * FROM posts
+      WHERE userId = ?
+      ORDER BY createdAt DESC
+      LIMIT ? OFFSET ?
+    `, [userId, limit, offset]);
+
+    return rows.map(row => this.rowToPost(row));
+  }
+
+  async getUserPostsCount(userId: string): Promise<number> {
+    await this.initializeDatabase();
+    const get = promisify(this.db.get.bind(this.db));
+
+    const row = await get(`
+      SELECT COUNT(*) as count FROM posts WHERE userId = ?
+    `, [userId]);
+
+    return row.count;
+  }
+
+  async getPostById(postId: string): Promise<Post | undefined> {
+    await this.initializeDatabase();
+    const get = promisify(this.db.get.bind(this.db));
+
+    const row = await get(`SELECT * FROM posts WHERE id = ?`, [postId]);
+    return row ? this.rowToPost(row) : undefined;
+  }
+
+  async deletePost(postId: string): Promise<void> {
+    await this.initializeDatabase();
+    const run = promisify(this.db.run.bind(this.db));
+
+    // Delete associated likes first
+    await run(`DELETE FROM post_likes WHERE postId = ?`, [postId]);
+
+    // Delete the post
+    await run(`DELETE FROM posts WHERE id = ?`, [postId]);
+  }
+
+  async togglePostLike(postId: string, userId: string): Promise<{ liked: boolean; likesCount: number }> {
+    await this.initializeDatabase();
+    const run = promisify(this.db.run.bind(this.db));
+    const get = promisify(this.db.get.bind(this.db));
+
+    // Check if user already liked this post
+    const existingLike = await get(`
+      SELECT * FROM post_likes WHERE postId = ? AND userId = ?
+    `, [postId, userId]);
+
+    let liked: boolean;
+
+    if (existingLike) {
+      // Unlike the post
+      await run(`DELETE FROM post_likes WHERE postId = ? AND userId = ?`, [postId, userId]);
+      await run(`UPDATE posts SET likes = likes - 1 WHERE id = ?`, [postId]);
+      liked = false;
+    } else {
+      // Like the post
+      const likeId = `like_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      await run(`
+        INSERT INTO post_likes (id, postId, userId, createdAt)
+        VALUES (?, ?, ?, ?)
+      `, [likeId, postId, userId, new Date().toISOString()]);
+
+      await run(`UPDATE posts SET likes = likes + 1 WHERE id = ?`, [postId]);
+      liked = true;
+    }
+
+    // Get updated likes count
+    const post = await get(`SELECT likes FROM posts WHERE id = ?`, [postId]);
+
+    return {
+      liked,
+      likesCount: post ? post.likes : 0
+    };
+  }
+
+  async getUserById(userId: string): Promise<User | undefined> {
+    return this.findUserById(userId);
+  }
+
+  private rowToPost(row: any): Post {
+    return {
+      ...row,
+      createdAt: new Date(row.createdAt),
+      updatedAt: new Date(row.updatedAt)
+    };
+  }
+
   private rowToUser(row: any): User {
     return {
       ...row,
