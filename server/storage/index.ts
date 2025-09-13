@@ -230,6 +230,97 @@ class DatabaseStorage implements StorageInterface {
       throw new Error('SQLite3 not installed. Use file or memory storage instead.');
     }
   }
+
+  // Post methods
+  async createPost(postData: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    try {
+      const { getDatabase } = await import('./database');
+      const db = getDatabase();
+      return db.createPost(postData);
+    } catch (error) {
+      throw new Error('SQLite3 not installed. Use file or memory storage instead.');
+    }
+  }
+
+  async getAllPosts(limit: number = 10, offset: number = 0): Promise<Post[]> {
+    try {
+      const { getDatabase } = await import('./database');
+      const db = getDatabase();
+      return db.getAllPosts(limit, offset);
+    } catch (error) {
+      throw new Error('SQLite3 not installed. Use file or memory storage instead.');
+    }
+  }
+
+  async getPostsCount(): Promise<number> {
+    try {
+      const { getDatabase } = await import('./database');
+      const db = getDatabase();
+      return db.getPostsCount();
+    } catch (error) {
+      throw new Error('SQLite3 not installed. Use file or memory storage instead.');
+    }
+  }
+
+  async getUserPosts(userId: string, limit: number = 10, offset: number = 0): Promise<Post[]> {
+    try {
+      const { getDatabase } = await import('./database');
+      const db = getDatabase();
+      return db.getUserPosts(userId, limit, offset);
+    } catch (error) {
+      throw new Error('SQLite3 not installed. Use file or memory storage instead.');
+    }
+  }
+
+  async getUserPostsCount(userId: string): Promise<number> {
+    try {
+      const { getDatabase } = await import('./database');
+      const db = getDatabase();
+      return db.getUserPostsCount(userId);
+    } catch (error) {
+      throw new Error('SQLite3 not installed. Use file or memory storage instead.');
+    }
+  }
+
+  async getPostById(postId: string): Promise<Post | undefined> {
+    try {
+      const { getDatabase } = await import('./database');
+      const db = getDatabase();
+      return db.getPostById(postId);
+    } catch (error) {
+      throw new Error('SQLite3 not installed. Use file or memory storage instead.');
+    }
+  }
+
+  async deletePost(postId: string): Promise<void> {
+    try {
+      const { getDatabase } = await import('./database');
+      const db = getDatabase();
+      return db.deletePost(postId);
+    } catch (error) {
+      throw new Error('SQLite3 not installed. Use file or memory storage instead.');
+    }
+  }
+
+  async togglePostLike(postId: string, userId: string): Promise<{ liked: boolean; likesCount: number }> {
+    try {
+      const { getDatabase } = await import('./database');
+      const db = getDatabase();
+      return db.togglePostLike(postId, userId);
+    } catch (error) {
+      throw new Error('SQLite3 not installed. Use file or memory storage instead.');
+    }
+  }
+
+  async getUserById(userId: string): Promise<User | undefined> {
+    try {
+      const { getDatabase } = await import('./database');
+      const db = getDatabase();
+      return db.getUserById(userId);
+    } catch (error) {
+      throw new Error('SQLite3 not installed. Use file or memory storage instead.');
+    }
+  }
 }
 
 // Storage Factory
