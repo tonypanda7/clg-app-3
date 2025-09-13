@@ -24,7 +24,21 @@ interface User {
   };
 }
 
+interface Post {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  content: string;
+  timestamp: string;
+  likes: number;
+  comments: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 interface StorageInterface {
+  // User methods
   addUser(user: User): Promise<void>;
   findUser(emailOrUsername: string): Promise<User | undefined>;
   findUserById(id: string): Promise<User | undefined>;
@@ -33,6 +47,17 @@ interface StorageInterface {
   emailExists(email: string): Promise<boolean>;
   getAllUsers(): Promise<User[]>;
   clearAllUsers(): Promise<void>;
+
+  // Post methods
+  createPost(postData: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>): Promise<string>;
+  getAllPosts(limit?: number, offset?: number): Promise<Post[]>;
+  getPostsCount(): Promise<number>;
+  getUserPosts(userId: string, limit?: number, offset?: number): Promise<Post[]>;
+  getUserPostsCount(userId: string): Promise<number>;
+  getPostById(postId: string): Promise<Post | undefined>;
+  deletePost(postId: string): Promise<void>;
+  togglePostLike(postId: string, userId: string): Promise<{ liked: boolean; likesCount: number }>;
+  getUserById(userId: string): Promise<User | undefined>;
 }
 
 // In-Memory Storage (current implementation)
